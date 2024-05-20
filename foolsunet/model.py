@@ -1,6 +1,7 @@
 import foolsunet.layers as fl
-from tensorflow.keras import layers
 import tensorflow as tf
+from tensorflow.keras import layers
+
 
 def downsample(filters, size, apply_batchnorm=True):
     initializer = tf.random_normal_initializer(0.0, 0.02)
@@ -49,6 +50,7 @@ def upsample(filters, size, apply_dropout=False):
 
     return result
 
+
 def downsample1(filters, size, apply_batchnorm=True):
 
     result = tf.keras.Sequential(
@@ -77,6 +79,7 @@ def upsample1(filters, size, apply_dropout=False):
     )
 
     return result
+
 
 def foolsunet(num_transformers=0):
     inputs = layers.Input(shape=[256, 256, 3])

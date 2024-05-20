@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers
 
+
 @tf.keras.utils.register_keras_serializable()
 class SqueezeExcite(layers.Layer):
     """
@@ -48,6 +49,7 @@ class SqueezeExcite(layers.Layer):
         x = self.multiply([shortcut, x])
         return x
 
+
 @tf.keras.utils.register_keras_serializable()
 class InverseResidualBlock(layers.Layer):
     """Implements an Inverse Residual Block like in MobileNetV2 and MobileNetV3
@@ -67,7 +69,9 @@ class InverseResidualBlock(layers.Layer):
         Modified feature maps.
     """
 
-    def __init__(self, features=16, expand_factor=4, strides=1, batch_norm=True, **kwargs):
+    def __init__(
+        self, features=16, expand_factor=4, strides=1, batch_norm=True, **kwargs
+    ):
         super().__init__(**kwargs)
         self.features = features
         self.expand_factor = expand_factor
@@ -76,23 +80,29 @@ class InverseResidualBlock(layers.Layer):
 
     def get_config(self):
         config = super().get_config()
-        config.update({"features": self.features,
-                       "expand_factor": self.expand_factor,
-                       "strides": self.strides,
-                       "batch_norm": self.batch_norm, })
+        config.update(
+            {
+                "features": self.features,
+                "expand_factor": self.expand_factor,
+                "strides": self.strides,
+                "batch_norm": self.batch_norm,
+            }
+        )
         return config
 
     def build(self, input_shape):
-        self.conv1 = layers.Conv2D(self.features*self.expand_factor, (1,1), strides=1)
+        self.conv1 = layers.Conv2D(
+            self.features * self.expand_factor, (1, 1), strides=1
+        )
         if self.batch_norm:
             self.bn1 = layers.BatchNormalization()
-        self.activation1 = layers.Activation('relu6')
-        self.dwise = layers.DepthwiseConv2D(3, padding='same', strides=self.strides)
+        self.activation1 = layers.Activation("relu6")
+        self.dwise = layers.DepthwiseConv2D(3, padding="same", strides=self.strides)
         if self.batch_norm:
             self.bn2 = layers.BatchNormalization()
-        self.activation2 = layers.Activation('relu6')
+        self.activation2 = layers.Activation("relu6")
         self.squeeze_excite = SqueezeExcite(ratio=4)
-        self.conv2 = layers.Conv2D(self.features, (1,1), strides=1, padding='same')
+        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same")
         if self.batch_norm:
             self.bn3 = layers.BatchNormalization()
 
@@ -113,13 +123,15 @@ class InverseResidualBlock(layers.Layer):
         if (
             # stride check enforces that we don't add residuals when spatial
             # dimensions are None
-            self.strides == 1 and
+            self.strides == 1
+            and
             # Depth matches
-             x.get_shape().as_list()[3] == shortcut.get_shape().as_list()[3]
+            x.get_shape().as_list()[3] == shortcut.get_shape().as_list()[3]
         ):
             x = tf.keras.layers.Add()([x, shortcut])
 
         return x
+
 
 @tf.keras.utils.register_keras_serializable()
 class Attention(layers.Layer):
@@ -150,31 +162,34 @@ class Attention(layers.Layer):
         s = self.conv_s(s)
         s = self.bn_s(s)
 
-        out = self.add([g,s])
+        out = self.add([g, s])
         out = self.act_1(out)
         out = self.conf_out(out)
         out = self.act_2(out)
-        out = self.mul([out,x[1]])
+        out = self.mul([out, x[1]])
         return out
 
     def get_config(self):
         config = super().get_config()
         return config
 
+
 @tf.keras.utils.register_keras_serializable()
 class MLP(layers.Layer):
-    def __init__(self,hidden_units=[128,64],dropout_rate=0.1,**kwargs):
+    def __init__(self, hidden_units=[128, 64], dropout_rate=0.1, **kwargs):
         super().__init__(**kwargs)
         self.hidden_units = []
         for units in hidden_units:
-            self.hidden_units.append(layers.Dense(units, activation=tf.keras.activations.gelu))
+            self.hidden_units.append(
+                layers.Dense(units, activation=tf.keras.activations.gelu)
+            )
         self.dropout = layers.Dropout(dropout_rate)
+
     def get_config(self):
         config = super().get_config()
         return config
 
-
-    def call(self,x):
+    def call(self, x):
         for units in self.hidden_units:
             x = units(x)
         x = self.dropout(x)
@@ -211,6 +226,7 @@ class Patches(layers.Layer):
         config.update({"patch_size": self.patch_size})
         return config
 
+
 @tf.keras.utils.register_keras_serializable()
 class PatchEncoder(layers.Layer):
     def __init__(self, num_patches, projection_dim):
@@ -234,9 +250,11 @@ class PatchEncoder(layers.Layer):
         config.update({"num_patches": self.num_patches})
         return config
 
+
 @tf.keras.utils.register_keras_serializable()
 class PatchAndEncode(layers.Layer):
     """https://blog.gopenai.com/understanding-vision-transformers-vit-with-tensorflow-and-keras-a-cifar-100-experiment-b820e08473f8"""
+
     def __init__(self, num_patches=64, patch_size=4, projection_dim=64):
         super().__init__()
         self.num_patches = num_patches
@@ -245,16 +263,23 @@ class PatchAndEncode(layers.Layer):
 
     def build(self, input_shape):
         # patching the input image into patches
-        self.patching = layers.Conv2D(self.projection_dim, kernel_size=self.patch_size, strides=self.patch_size)
-        self.reshape = layers.Reshape((self.num_patches, self.projection_dim), name='pacthes')
+        self.patching = layers.Conv2D(
+            self.projection_dim, kernel_size=self.patch_size, strides=self.patch_size
+        )
+        self.reshape = layers.Reshape(
+            (self.num_patches, self.projection_dim), name="pacthes"
+        )
 
         # Learnable positional embeddings
-        self.lambda0 = layers.Lambda(lambda x: tf.expand_dims(tf.range(self.num_patches), axis=0))
-        self.embedding = layers.Embedding(input_dim=self.num_patches, output_dim=self.projection_dim)
+        self.lambda0 = layers.Lambda(
+            lambda x: tf.expand_dims(tf.range(self.num_patches), axis=0)
+        )
+        self.embedding = layers.Embedding(
+            input_dim=self.num_patches, output_dim=self.projection_dim
+        )
 
         # Add positional embeddings to patches
         self.add = layers.Add()
-
 
     def call(self, x):
         # patching the input image into patches
@@ -266,22 +291,23 @@ class PatchAndEncode(layers.Layer):
         position_embeddings = self.embedding(lmbd)
 
         # Add positional embeddings to patches
-        patches = self.add([patches,position_embeddings])
+        patches = self.add([patches, position_embeddings])
         return patches
-
 
     def get_config(self):
         config = super().get_config()
         config.update({"num_patches": self.num_patches})
         return config
-    
+
+
 class MakeShape(layers.Layer):
     def __init__(self, shape, **kwargs):
         super().__init__(**kwargs)
         self.shape = shape
+
     def build(self, input_shape):
         s = self.shape
-        self.dense = layers.Dense(s[1]*s[2]*s[3]//input_shape[1])
+        self.dense = layers.Dense(s[1] * s[2] * s[3] // input_shape[1])
         self.reshape = layers.Reshape(s[1:])
 
     def call(self, x):
@@ -293,7 +319,8 @@ class MakeShape(layers.Layer):
         config = super().get_config()
         config.update({"num_patches": self.num_patches})
         return config
-    
+
+
 class TransformerBlock(layers.Layer):
     def __init__(self, num_heads=4, projection_dim=64, **kwargs):
         super().__init__(**kwargs)
@@ -316,7 +343,7 @@ class TransformerBlock(layers.Layer):
         # Layer normalization 2.
         self.norm2 = layers.LayerNormalization(epsilon=1e-6)
         # MLP.
-        self.mlp = MLP(hidden_units=[self.projection_dim*2,self.projection_dim])
+        self.mlp = MLP(hidden_units=[self.projection_dim * 2, self.projection_dim])
         # Skip connection 2.
         self.add2 = layers.Add()
 
