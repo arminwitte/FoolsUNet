@@ -3,10 +3,10 @@ import tensorflow as tf
 from tensorflow.keras import layers
 
 
-def downsample(filters, size, apply_batchnorm=True):
+def downsample(filters, size, apply_batchnorm=True, name=None):
     initializer = tf.random_normal_initializer(0.0, 0.02)
 
-    result = tf.keras.Sequential()
+    result = tf.keras.Sequential(name=name)
     result.add(
         layers.Conv2D(
             filters,
@@ -26,10 +26,10 @@ def downsample(filters, size, apply_batchnorm=True):
     return result
 
 
-def upsample(filters, size, apply_dropout=False):
+def upsample(filters, size, apply_dropout=False, name=None):
     initializer = tf.random_normal_initializer(0.0, 0.02)
 
-    result = tf.keras.Sequential()
+    result = tf.keras.Sequential(name=name)
     result.add(
         layers.Conv2DTranspose(
             filters,
@@ -51,19 +51,19 @@ def upsample(filters, size, apply_dropout=False):
     return result
 
 
-def downsample1(filters, size, apply_batchnorm=True):
+def downsample1(filters, size, apply_batchnorm=True, name=None):
 
     result = tf.keras.Sequential(
         [
             fl.InverseResidualBlock(filters * 2 // 3),
             fl.InverseResidualBlock(filters * 2 // 3),
             fl.InverseResidualBlock(filters, strides=2),
-        ]
-    )
+        ],
+    name=name)
     return result
 
 
-def upsample1(filters, size, apply_dropout=False):
+def upsample1(filters, size, apply_dropout=False, name=None):
 
     result = tf.keras.Sequential(
         [
@@ -75,7 +75,8 @@ def upsample1(filters, size, apply_dropout=False):
             ),
             layers.BatchNormalization(),
             layers.ReLU(),
-        ]
+        ],
+        name=name
     )
 
     return result
@@ -92,12 +93,12 @@ def foolsunet(num_transformers=0):
 
     down_stack = [
         # InverseResidualBlock(24, strides=2),
-        downsample(64, 3, apply_batchnorm=False),  # (batch_size, 128, 128, 64)
+        downsample(64, 3, apply_batchnorm=False, name="block_1_downsample"),  # (batch_size, 128, 128, 64)
         # InverseResidualBlock(32, strides=2),
-        downsample(128, 3),  # (batch_size, 64, 64, 128)
-        downsample1(64, 3),  # (batch_size, 32, 32, 256)
-        downsample1(96, 3),  # (batch_size, 16, 16, 512)
-        downsample1(128, 3),  # (batch_size, 8, 8, 512)
+        downsample(128, 3, name="block_2_downsample"),  # (batch_size, 64, 64, 128)
+        downsample1(64, 3, name="block_3_invres_downsample"),  # (batch_size, 32, 32, 256)
+        downsample1(96, 3, name="block_4_invres_downsample"),  # (batch_size, 16, 16, 512)
+        downsample1(128, 3, name="block_5_invres_downsample"),  # (batch_size, 8, 8, 512)
         # downsample1(128, 4),  # (batch_size, 4, 4, 512)
         # downsample1(192, 4),  # (batch_size, 2, 2, 512)
         # downsample1(512, 4),  # (batch_size, 1, 1, 512)
@@ -119,10 +120,10 @@ def foolsunet(num_transformers=0):
         # upsample1(512, 4, apply_dropout=True),  # (batch_size, 2, 2, 1024)
         # upsample1(128, 4, apply_dropout=True),  # (batch_size, 4, 4, 1024)
         # upsample1(96, 4, apply_dropout=True),  # (batch_size, 8, 8, 1024)
-        upsample1(96, 3),  # (batch_size, 16, 16, 1024)
-        upsample1(64, 3),  # (batch_size, 32, 32, 512)
-        upsample(128, 3),  # (batch_size, 64, 64, 256)
-        upsample(64, 3),  # (batch_size, 128, 128, 128)
+        upsample1(96, 3, name="block_6_invres_upsample"),  # (batch_size, 16, 16, 1024)
+        upsample1(64, 3, name="block_7_invres_upsample"),  # (batch_size, 32, 32, 512)
+        upsample(128, 3, name="block_8_upsample"),  # (batch_size, 64, 64, 256)
+        upsample(64, 3, name="block_9_upsample"),  # (batch_size, 128, 128, 128)
     ]
 
     attention_stack = [fl.Attention() for _ in range(len(down_stack) - 1)]
@@ -130,7 +131,7 @@ def foolsunet(num_transformers=0):
     initializer = tf.random_normal_initializer(0.0, 0.02)
     last = layers.Conv2DTranspose(
         3, 3, strides=2, padding="same", kernel_initializer=initializer
-    )  # (batch_size, 256, 256, 3)
+    , name="output")  # (batch_size, 256, 256, 3)
 
     x = inputs
     # x = first(x)
