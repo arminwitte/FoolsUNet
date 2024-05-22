@@ -99,7 +99,7 @@ def foolsunet(num_transformers=0):
         downsample1(64, 3, name="block_3_invres_downsample"),  # (batch_size, 32, 32, 256)
         downsample1(96, 3, name="block_4_invres_downsample"),  # (batch_size, 16, 16, 512)
         downsample1(128, 3, name="block_5_invres_downsample"),  # (batch_size, 8, 8, 512)
-        # downsample1(128, 4),  # (batch_size, 4, 4, 512)
+        downsample1(192, 3, name="block_6_invres_downsample"),  # (batch_size, 4, 4, 512)
         # downsample1(192, 4),  # (batch_size, 2, 2, 512)
         # downsample1(512, 4),  # (batch_size, 1, 1, 512)
     ]
@@ -119,11 +119,11 @@ def foolsunet(num_transformers=0):
     up_stack = [
         # upsample1(512, 4, apply_dropout=True),  # (batch_size, 2, 2, 1024)
         # upsample1(128, 4, apply_dropout=True),  # (batch_size, 4, 4, 1024)
-        # upsample1(96, 4, apply_dropout=True),  # (batch_size, 8, 8, 1024)
-        upsample1(96, 3, name="block_6_invres_upsample"),  # (batch_size, 16, 16, 1024)
-        upsample1(64, 3, name="block_7_invres_upsample"),  # (batch_size, 32, 32, 512)
-        upsample(128, 3, name="block_8_upsample"),  # (batch_size, 64, 64, 256)
-        upsample(64, 3, name="block_9_upsample"),  # (batch_size, 128, 128, 128)
+        upsample1(128, 4, apply_dropout=True , name="block_7_upsample"),  # (batch_size, 8, 8, 1024)
+        upsample1(96, 3, name="block_8_invres_upsample"),  # (batch_size, 16, 16, 1024)
+        upsample1(64, 3, name="block_9_invres_upsample"),  # (batch_size, 32, 32, 512)
+        upsample(128, 3, name="block_10_upsample"),  # (batch_size, 64, 64, 256)
+        upsample(64, 3, name="block_11_upsample"),  # (batch_size, 128, 128, 128)
     ]
 
     attention_stack = [fl.Attention() for _ in range(len(down_stack) - 1)]
