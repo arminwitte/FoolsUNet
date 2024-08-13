@@ -66,7 +66,7 @@ class EfficientChannelAttention(layers.Layer):
         self.squeeze = layers.GlobalAveragePooling2D(keepdims=False)
         self.reshape1 = layers.Reshape((1,channels))
         self.conv = layers.Conv1D(1,self.kernel_size, padding="same", use_bias=False, strides=1, activation="sigmoid")
-        self.reshape11 = layers.Reshape((1,1,self.channels))
+        self.reshape11 = layers.Reshape((1,1,channels))
         self.multiply = layers.Multiply()
 
     def call(self, x):
