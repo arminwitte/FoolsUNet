@@ -49,6 +49,36 @@ class SqueezeExcite(layers.Layer):
         x = self.multiply([shortcut, x])
         return x
 
+@tf.keras.utils.register_keras_serializable()
+class EfficientChannelAttention(layers.Layer):
+    
+    def __init__(self, kernel_size, **kwargs):
+        super().__init__(**kwargs)
+        self.kernel_size = kernel_size
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({"kernel_size": self.kernel_size})
+        return config
+
+    def build(self, input_shape):
+        channels = input_shape[-1]
+        self.squeeze = layers.GlobalAveragePooling2D(keepdims=False)
+        self.reshape1 = layers.Reshape((1,channels))
+        self.conv = layers.Conv1D(1,self.kernel_size, padding="same", use_bias=False, strides=1, activation="sigmoid")
+        self.reshape11 = layers.Reshape((1,1,self.channels))
+        self.multiply = layers.Multiply()
+
+    def call(self, x):
+        shortcut = x
+        x = self.squeeze(x)
+        x = self.reshape1(x)
+        x = self.conv(x)
+        x = self.reshape11(x)
+        x = self.multiply([shortcut, x])
+        return x
+
+
 
 @tf.keras.utils.register_keras_serializable()
 class InverseResidualBlock(layers.Layer):
@@ -101,7 +131,7 @@ class InverseResidualBlock(layers.Layer):
         if self.batch_norm:
             self.bn2 = layers.BatchNormalization()
         self.activation2 = layers.Activation("relu6")
-        self.squeeze_excite = SqueezeExcite(ratio=4)
+        self.squeeze_excite = EfficientChannelAttention(kernel_size=3)#SqueezeExcite(ratio=4)
         self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same")
         if self.batch_norm:
             self.bn3 = layers.BatchNormalization()
