@@ -148,7 +148,7 @@ class InverseResidualBlock(layers.Layer):
         self.activation2 = layers.Activation("relu6")
         
         if self.channel_attention == "eca":
-           self.squeeze_excite = EfficientChannelAttention(kernel_size=3)
+            self.squeeze_excite = EfficientChannelAttention(kernel_size=3)
         elif self.channel_attention == "se": 
             self.squeeze_excite = SqueezeExcite(ratio=4)
         else:
