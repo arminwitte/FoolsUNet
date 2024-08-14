@@ -119,9 +119,9 @@ def foolsunet(num_transformers=0, channel_attention=""):
     up_stack = [
         # upsample1(512, 4, apply_dropout=True),  # (batch_size, 2, 2, 1024)
         # upsample1(128, 4, apply_dropout=True),  # (batch_size, 4, 4, 1024)
-        upsample1(128, 4, apply_dropout=True , name="block_7_upsample"),  # (batch_size, 8, 8, 1024)
-        upsample1(96, 3, name="block_8_invres_upsample"),  # (batch_size, 16, 16, 1024)
-        upsample1(64, 3, name="block_9_invres_upsample"),  # (batch_size, 32, 32, 512)
+        upsample1(128, 3, channel_attention=channel_attention, apply_dropout=True , name="block_7_upsample"),  # (batch_size, 8, 8, 1024)
+        upsample1(96, 3, channel_attention=channel_attention, name="block_8_invres_upsample"),  # (batch_size, 16, 16, 1024)
+        upsample1(64, 3, channel_attention=channel_attention, name="block_9_invres_upsample"),  # (batch_size, 32, 32, 512)
         upsample(128, 3, name="block_10_upsample"),  # (batch_size, 64, 64, 256)
         upsample(64, 3, name="block_11_upsample"),  # (batch_size, 128, 128, 128)
     ]
