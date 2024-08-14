@@ -146,11 +146,14 @@ class InverseResidualBlock(layers.Layer):
         if self.batch_norm:
             self.bn2 = layers.BatchNormalization()
         self.activation2 = layers.Activation("relu6")
-        self.squeeze_excite = layers.Layer()
+        
         if self.channel_attention == "eca":
            self.squeeze_excite = EfficientChannelAttention(kernel_size=3)
         elif self.channel_attention == "se": 
             self.squeeze_excite = SqueezeExcite(ratio=4)
+        else:
+            self.squeeze_excite = layers.Layer()
+            
         self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same")
         if self.batch_norm:
             self.bn3 = layers.BatchNormalization()
