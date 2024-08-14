@@ -65,26 +65,26 @@ class EfficientChannelAttention(layers.Layer):
         channels = input_shape[-1]
         self.squeeze = layers.GlobalAveragePooling2D(keepdims=False)
         
-        #self.reshape1 = layers.Reshape((1,channels))
-        #self.conv = layers.Conv1D(channels,self.kernel_size, padding="same", use_bias=False, strides=1, activation="sigmoid")
-        #self.reshape11 = layers.Reshape((1,1,channels))
+        self.reshape1 = layers.Reshape((1,channels))
+        self.conv = layers.Conv1D(channels,self.kernel_size, padding="same", use_bias=False, strides=1, activation="sigmoid")
+        self.reshape11 = layers.Reshape((1,1,channels))
         
-        self.conv = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
-        self.activation = layers.Activation("sigmoid")
+        #self.conv = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
+        #self.activation = layers.Activation("sigmoid")
 
         self.multiply = layers.Multiply()
 
     def call(self, x):
         shortcut = x
         x = self.squeeze(x)
-        #x = self.reshape1(x)
-        #x = self.conv(x)
-        #x = self.reshape11(x)
-
-        x = tf.expand_dims(x, axis=1)
+        x = self.reshape1(x)
         x = self.conv(x)
-        x = tf.expand_dims(tf.transpose(x, [0, 2, 1]), 3)
-        x = self.activation(x)
+        x = self.reshape11(x)
+
+        #x = tf.expand_dims(x, axis=1)
+        #x = self.conv(x)
+        #x = tf.expand_dims(tf.transpose(x, [0, 2, 1]), 3)
+        #x = self.activation(x)
         
         x = self.multiply([shortcut, x])
         return x
