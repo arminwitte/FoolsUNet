@@ -87,15 +87,6 @@ class EfficientChannelAttention(layers.Layer):
         x = self.activation(x)
         
         x = self.multiply([shortcut, x])
-
-    k_size = 3 
-    squeeze = tf.reduce_mean(x,[2,3],keep_dims=False)
-    squeeze = 
-    attn = tf.
-
-    attn = attn = tf.math.sigmoid(attn)
-    scale = x * attn
-    return x * attn
         return x
 
 
