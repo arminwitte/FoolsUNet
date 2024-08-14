@@ -111,13 +111,14 @@ class InverseResidualBlock(layers.Layer):
     """
 
     def __init__(
-        self, features=16, expand_factor=4, strides=1, batch_norm=True, **kwargs
+        self, features=16, expand_factor=4, strides=1, batch_norm=True, channel_attention="", **kwargs
     ):
         super().__init__(**kwargs)
         self.features = features
         self.expand_factor = expand_factor
         self.strides = strides
         self.batch_norm = batch_norm
+        self.channel_attention = channel_attention 
 
     def get_config(self):
         config = super().get_config()
@@ -142,7 +143,11 @@ class InverseResidualBlock(layers.Layer):
         if self.batch_norm:
             self.bn2 = layers.BatchNormalization()
         self.activation2 = layers.Activation("relu6")
-        self.squeeze_excite = EfficientChannelAttention(kernel_size=3)#SqueezeExcite(ratio=4)
+        self.squeeze_excite = layer.Layer()
+        if self.channel_attention == "eca":
+           self.squeeze_excite = EfficientChannelAttention(kernel_size=3)
+        elif self.channel_attention == "se": 
+            self.squeeze_excite = SqueezeExcite(ratio=4)
         self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same")
         if self.batch_norm:
             self.bn3 = layers.BatchNormalization()
