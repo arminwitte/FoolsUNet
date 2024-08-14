@@ -51,24 +51,24 @@ def upsample(filters, size, apply_dropout=False, name=None):
     return result
 
 
-def downsample1(filters, size, apply_batchnorm=True, name=None):
+def downsample1(filters, size, channel_attention="", apply_batchnorm=True, name=None):
 
     result = tf.keras.Sequential(
         [
-            fl.InverseResidualBlock(filters * 2 // 3),
-            fl.InverseResidualBlock(filters * 2 // 3),
-            fl.InverseResidualBlock(filters, strides=2),
+            fl.InverseResidualBlock(filters * 2 // 3, channel_attention=channel_attention),
+            fl.InverseResidualBlock(filters * 2 // 3, channel_attention=channel_attention),
+            fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention),
         ],
     name=name)
     return result
 
 
-def upsample1(filters, size, apply_dropout=False, name=None):
+def upsample1(filters, size, channel_attention="", apply_dropout=False, name=None):
 
     result = tf.keras.Sequential(
         [
-            fl.InverseResidualBlock(filters * 3 // 2),
-            fl.InverseResidualBlock(filters * 3 // 2),
+            fl.InverseResidualBlock(filters * 3 // 2, channel_attention=channel_attention),
+            fl.InverseResidualBlock(filters * 3 // 2, channel_attention=channel_attention),
             # layers.UpSampling2D(size=2),
             layers.Conv2DTranspose(
                 filters, size, strides=2, padding="same", use_bias=False
@@ -82,7 +82,7 @@ def upsample1(filters, size, apply_dropout=False, name=None):
     return result
 
 
-def foolsunet(num_transformers=0):
+def foolsunet(num_transformers=0, channel_attention=""):
     inputs = layers.Input(shape=[256, 256, 3])
     # initializer = tf.random_normal_initializer(0., 0.02)
     # first = layers.Conv2D(64, 3,
@@ -96,10 +96,10 @@ def foolsunet(num_transformers=0):
         downsample(64, 3, apply_batchnorm=False, name="block_1_downsample"),  # (batch_size, 128, 128, 64)
         # InverseResidualBlock(32, strides=2),
         downsample(128, 3, name="block_2_downsample"),  # (batch_size, 64, 64, 128)
-        downsample1(64, 3, name="block_3_invres_downsample"),  # (batch_size, 32, 32, 256)
-        downsample1(96, 3, name="block_4_invres_downsample"),  # (batch_size, 16, 16, 512)
-        downsample1(128, 3, name="block_5_invres_downsample"),  # (batch_size, 8, 8, 512)
-        downsample1(192, 3, name="block_6_invres_downsample"),  # (batch_size, 4, 4, 512)
+        downsample1(64, 3, channel_attention=channel_attention, name="block_3_invres_downsample"),  # (batch_size, 32, 32, 256)
+        downsample1(96, 3, channel_attention=channel_attention, name="block_4_invres_downsample"),  # (batch_size, 16, 16, 512)
+        downsample1(128, 3, channel_attention=channel_attention, name="block_5_invres_downsample"),  # (batch_size, 8, 8, 512)
+        downsample1(192, 3, channel_attention=channel_attention, name="block_6_invres_downsample"),  # (batch_size, 4, 4, 512)
         # downsample1(192, 4),  # (batch_size, 2, 2, 512)
         # downsample1(512, 4),  # (batch_size, 1, 1, 512)
     ]
