@@ -152,7 +152,7 @@ class InverseResidualBlock(layers.Layer):
         elif self.channel_attention == "se": 
             self.squeeze_excite = SqueezeExcite(ratio=4)
         else:
-            self.squeeze_excite = layers.Layer()
+            self.squeeze_excite = layers.Lambda(lambda x:x) #layers.Layer()
             
         self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same")
         if self.batch_norm:
