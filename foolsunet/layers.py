@@ -219,7 +219,7 @@ class ASPPBlock(layers.Layer):
         self.channel_attention = channel_attention
         self.dropout_rate = dropout_rate
         
-def get_config(self):
+    def get_config(self):
         config = super().get_config()
         config.update(
             {
