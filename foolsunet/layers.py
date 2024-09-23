@@ -344,7 +344,7 @@ class ASPPBlock(layers.Layer):
         xd = self.activation2_d(xd)
 
 
-        x = layers.Concatenate([xa, xb, xc, xd])
+        x = layers.Concatenate()([xa, xb, xc, xd])
         x = self.squeeze_excite(x)
         x = self.conv2(x)
         if self.batch_norm:
