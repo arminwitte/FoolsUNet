@@ -55,9 +55,13 @@ def downsample1(filters, size, channel_attention="", apply_batchnorm=True, name=
 
     result = tf.keras.Sequential(
         [
-            fl.InverseResidualBlock(filters * 2 // 3, channel_attention=channel_attention),
-            fl.InverseResidualBlock(filters * 2 // 3, channel_attention=channel_attention),
-            fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention),
+            # fl.InverseResidualBlock(filters * 2 // 3, channel_attention=channel_attention),
+            # fl.InverseResidualBlock(filters * 2 // 3, channel_attention=channel_attention),
+            # fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention),
+            
+            fl.ASPPBlock(filters * 2 // 3, channel_attention=channel_attention),
+            fl.ASPPBlock(filters * 2 // 3, channel_attention=channel_attention),
+            fl.ASPPBlock(filters, strides=2, channel_attention=channel_attention),
         ],
     name=name)
     return result
@@ -67,9 +71,11 @@ def upsample1(filters, size, channel_attention="", apply_dropout=False, name=Non
 
     result = tf.keras.Sequential(
         [
-            fl.InverseResidualBlock(filters * 3 // 2, channel_attention=channel_attention),
-            fl.InverseResidualBlock(filters * 3 // 2, channel_attention=channel_attention),
-            # layers.UpSampling2D(size=2),
+            # fl.InverseResidualBlock(filters * 3 // 2, channel_attention=channel_attention),
+            # fl.InverseResidualBlock(filters * 3 // 2, channel_attention=channel_attention),
+            fl.ASPPBlock(filters * 3 // 2, channel_attention=channel_attention),
+            fl.ASPPBlock(filters * 3 // 2, channel_attention=channel_attention),
+            
             layers.Conv2DTranspose(
                 filters, size, strides=2, padding="same", use_bias=False
             ),
