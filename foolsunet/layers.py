@@ -228,6 +228,7 @@ def get_config(self):
                 "strides": self.strides,
                 "batch_norm": self.batch_norm,
                 "channel_attention": self.channel_attention,
+                "dropout_rate": self.dropout_rate,
             }
         )
         return config
@@ -299,37 +300,51 @@ def get_config(self):
     def call(self, x):
         shortcut = x
 
-        x = self.conv1_a(x)
+        xa = self.conv1_a(x)
         if self.batch_norm:
-            x = self.bn1_a(x)
-        x = self.activation1_a(x)
-        x = self.dwise_a(x)
-
-
-        x = self.conv1_b(x)
+            xa = self.bn1_a(xa)
+        xa = self.activation1_a(xa)
+        xa = self.dwise_a(xa)
         if self.batch_norm:
-            x = self.bn1_b(x)
-        x = self.activation1_b(x)
-        x = self.dwise_b(x)
+            xa = self.bn2_a(xa)
+        xa = self.dropout_a(xa)
+        xa = self.activation2_a(xa)
 
 
-        x = self.conv1_c(x)
+        xb = self.conv1_b(x)
         if self.batch_norm:
-            x = self.bn1_c(x)
-        x = self.activation1_c(x)
-        x = self.dwise_c(x)
-
-
-        x = self.conv1_d(x)
+            xb = self.bn1_b(xb)
+        xb = self.activation1_b(xb)
+        xb = self.dwise_b(xb)
         if self.batch_norm:
-            x = self.bn1_d(x)
-        x = self.activation1_d(x)
-        x = self.dwise_d(x)
+            xb = self.bn2_b(xb)
+        xb = self.dropout_b(xb)
+        xb = self.activation2_b(xb)
 
 
+        xc = self.conv1_c(x)
         if self.batch_norm:
-            x = self.bn2(x)
-        x = self.activation2(x)
+            xc = self.bn1_c(xc)
+        xc = self.activation1_c(xc)
+        xc = self.dwise_c(xc)
+        if self.batch_norm:
+            xc = self.bn2_c(xc)
+        xc = self.dropout_c(xc)
+        xc = self.activation2_c(xc)
+
+
+        xd = self.conv1_d(x)
+        if self.batch_norm:
+            xd = self.bn1_d(xd)
+        xd = self.activation1_d(xd)
+        xd = self.dwise_d(xd)
+        if self.batch_norm:
+            xd = self.bn2_d(xd)
+        xd = self.dropout_d(xd)
+        xd = self.activation2_d(xd)
+
+
+        x = layers.Concatenate([xa, xb, xc, xd])
         x = self.squeeze_excite(x)
         x = self.conv2(x)
         if self.batch_norm:
