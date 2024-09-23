@@ -61,7 +61,7 @@ def downsample1(filters, size, channel_attention="", apply_batchnorm=True, name=
             
             fl.ASPPBlock(filters * 2 // 3, channel_attention=channel_attention),
             fl.ASPPBlock(filters * 2 // 3, channel_attention=channel_attention),
-            fl.ASPPBlock(filters, strides=2, channel_attention=channel_attention),
+            fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention),
         ],
     name=name)
     return result
