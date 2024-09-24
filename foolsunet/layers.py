@@ -245,48 +245,48 @@ class ASPPBlock(layers.Layer):
         )
         if self.batch_norm:
             self.bn1_a = layers.BatchNormalization()
-        self.activation1_a = layers.Activation("gelu")
+        self.activation1_a = layers.Activation("leaky_relu")
         self.dwise_a = layers.DepthwiseConv2D(3, dilation_rate=(1, 1), padding="same", strides=self.strides, use_bias=False)
         if self.batch_norm:
             self.bn2_a = layers.BatchNormalization()
         self.dropout_a = layers.Dropout(self.dropout_rate)
-        self.activation2_a = layers.Activation("gelu")
+        self.activation2_a = layers.Activation("leaky_relu")
 
         self.conv1_b = layers.Conv2D(
             self.features, (1, 1), strides=1, use_bias=False
         )
         if self.batch_norm:
             self.bn1_b = layers.BatchNormalization()
-        self.activation1_b = layers.Activation("gelu")
+        self.activation1_b = layers.Activation("leaky_relu")
         self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(3, 3), padding="same", strides=self.strides, use_bias=False)
         if self.batch_norm:
             self.bn2_b = layers.BatchNormalization()
         self.dropout_b = layers.Dropout(self.dropout_rate)
-        self.activation2_b = layers.Activation("gelu")
+        self.activation2_b = layers.Activation("leaky_relu")
        
         self.conv1_c = layers.Conv2D(
             self.features, (1, 1), strides=1, use_bias=False
         )
         if self.batch_norm:
             self.bn1_c = layers.BatchNormalization()
-        self.activation1_c = layers.Activation("gelu")
+        self.activation1_c = layers.Activation("leaky_relu")
         self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(5, 5), padding="same", strides=self.strides, use_bias=False)
         if self.batch_norm:
             self.bn2_c = layers.BatchNormalization()
         self.dropout_c = layers.Dropout(self.dropout_rate)
-        self.activation2_c = layers.Activation("gelu")
+        self.activation2_c = layers.Activation("leaky_relu")
         
         self.conv1_d = layers.Conv2D(
             self.features, (1, 1), strides=1, use_bias=False
         )
         if self.batch_norm:
             self.bn1_d = layers.BatchNormalization()
-        self.activation1_d = layers.Activation("gelu")
+        self.activation1_d = layers.Activation("leaky_relu")
         self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(7, 7), padding="same", strides=self.strides, use_bias=False)
         if self.batch_norm:
             self.bn2_d = layers.BatchNormalization()
         self.dropout_d = layers.Dropout(self.dropout_rate)
-        self.activation2_d = layers.Activation("gelu")
+        self.activation2_d = layers.Activation("leaky_relu")
         
         
         
