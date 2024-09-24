@@ -69,8 +69,10 @@ class EfficientChannelAttention(layers.Layer):
         #self.conv = layers.Conv1D(channels,self.kernel_size, padding="same", use_bias=False, strides=1, activation="sigmoid")
         #self.reshape11 = layers.Reshape((1,1,channels))
         
-        self.conv = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
-        self.activation = layers.Activation("sigmoid")
+        self.conv1 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
+        self.activation1 = layers.Activation("leakyrelu")
+        self.conv2 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
+        self.activation2 = layers.Activation("sigmoid")
 
         self.multiply = layers.Multiply()
 
@@ -83,10 +85,12 @@ class EfficientChannelAttention(layers.Layer):
         # x = self.reshape11(x)
 
         x = tf.expand_dims(x, axis=-1) # (batch, channels, 1)
-        x = self.conv(x) # (batch, channels, 1)
+        x = self.conv1(x) # (batch, channels, 1)
+        x = self.activation1(x)
+        x = self.conv2(x) # (batch, channels, 1)
         x = tf.transpose(x, [0, 2, 1]) # (batch, 1, channels)
         x = tf.expand_dims(x, 1) # (batch, 1, 1, channels)
-        x = self.activation(x)
+        x = self.activation2(x)
         
         x = self.multiply([shortcut, x])
         return x
