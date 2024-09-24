@@ -213,7 +213,7 @@ class ASPPBlock(layers.Layer):
     """
 
     def __init__(
-        self, features=16, expand_factor=4, strides=1, batch_norm=True, channel_attention="", dropout_rate=0.1, **kwargs
+        self, features=16, expand_factor=4, strides=1, batch_norm=True, channel_attention="", dropout_rate=0.2, **kwargs
     ):
         super().__init__(**kwargs)
         self.features = features
@@ -249,7 +249,7 @@ class ASPPBlock(layers.Layer):
         self.dwise_a = layers.DepthwiseConv2D(3, dilation_rate=(1, 1), padding="same", strides=self.strides)
         if self.batch_norm:
             self.bn2_a = layers.BatchNormalization()
-        # self.dropout_a = layers.Dropout(self.dropout_rate)
+        self.dropout_a = layers.Dropout(self.dropout_rate)
         self.activation2_a = layers.Activation("relu6")
 
         self.conv1_b = layers.Conv2D(
@@ -261,7 +261,7 @@ class ASPPBlock(layers.Layer):
         self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(3, 3), padding="same", strides=self.strides)
         if self.batch_norm:
             self.bn2_b = layers.BatchNormalization()
-        # self.dropout_b = layers.Dropout(self.dropout_rate)
+        self.dropout_b = layers.Dropout(self.dropout_rate)
         self.activation2_b = layers.Activation("relu6")
        
         self.conv1_c = layers.Conv2D(
@@ -273,7 +273,7 @@ class ASPPBlock(layers.Layer):
         self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(5, 5), padding="same", strides=self.strides)
         if self.batch_norm:
             self.bn2_c = layers.BatchNormalization()
-        # self.dropout_c = layers.Dropout(self.dropout_rate)
+        self.dropout_c = layers.Dropout(self.dropout_rate)
         self.activation2_c = layers.Activation("relu6")
         
         self.conv1_d = layers.Conv2D(
@@ -285,7 +285,7 @@ class ASPPBlock(layers.Layer):
         self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(7, 7), padding="same", strides=self.strides)
         if self.batch_norm:
             self.bn2_d = layers.BatchNormalization()
-        # self.dropout_d = layers.Dropout(self.dropout_rate)
+        self.dropout_d = layers.Dropout(self.dropout_rate)
         self.activation2_d = layers.Activation("relu6")
         
         
@@ -311,7 +311,7 @@ class ASPPBlock(layers.Layer):
         xa = self.dwise_a(xa)
         if self.batch_norm:
             xa = self.bn2_a(xa)
-        # xa = self.dropout_a(xa)
+        xa = self.dropout_a(xa)
         xa = self.activation2_a(xa)
 
 
@@ -322,7 +322,7 @@ class ASPPBlock(layers.Layer):
         xb = self.dwise_b(xb)
         if self.batch_norm:
             xb = self.bn2_b(xb)
-        # xb = self.dropout_b(xb)
+        xb = self.dropout_b(xb)
         xb = self.activation2_b(xb)
 
 
@@ -333,7 +333,7 @@ class ASPPBlock(layers.Layer):
         xc = self.dwise_c(xc)
         if self.batch_norm:
             xc = self.bn2_c(xc)
-        # xc = self.dropout_c(xc)
+        xc = self.dropout_c(xc)
         xc = self.activation2_c(xc)
 
 
@@ -344,7 +344,7 @@ class ASPPBlock(layers.Layer):
         xd = self.dwise_d(xd)
         if self.batch_norm:
             xd = self.bn2_d(xd)
-        # xd = self.dropout_d(xd)
+        xd = self.dropout_d(xd)
         xd = self.activation2_d(xd)
 
 
