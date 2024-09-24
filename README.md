@@ -10,4 +10,5 @@ Implementation of a lightweight U-Net only a fool would use
 | w/o attention | 388ms | 0.8783 | 0.7135 |
 | SE ASPP | 780ms | 0.8588 | 0.7435 |
 | ECA ASPP | 780ms | 0.9000 | 0.8471 |
-| ASPP w/o attention | 760ms | 0.8918 | 0.8358
+| ASPP w/o attention | 760ms | 0.8918 | 0.8358 |
+| ECA ASPP w/ GELU | 820ms | 0.9070 | 0.7682 |
