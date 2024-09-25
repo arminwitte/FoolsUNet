@@ -71,7 +71,7 @@ class EfficientChannelAttention(layers.Layer):
         
         # self.conv1 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
         # self.activation1 = layers.Activation("leakyrelu")
-        self.conv2 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
+        self.conv2 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=True)
         self.activation2 = layers.Activation("sigmoid")
 
         self.multiply = layers.Multiply()
@@ -241,48 +241,48 @@ class ASPPBlock(layers.Layer):
 
 
         self.conv1_a = layers.Conv2D(
-            self.features, (1, 1), strides=1, use_bias=False
+            self.features, (1, 1), strides=1, use_bias=True
         )
         if self.batch_norm:
             self.bn1_a = layers.BatchNormalization()
         self.activation1_a = layers.Activation("relu6")
-        self.dwise_a = layers.DepthwiseConv2D(3, dilation_rate=(1, 1), padding="same", strides=self.strides, use_bias=False)
+        self.dwise_a = layers.DepthwiseConv2D(3, dilation_rate=(1, 1), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_a = layers.BatchNormalization()
         self.dropout_a = layers.Dropout(self.dropout_rate)
         self.activation2_a = layers.Activation("relu6")
 
         self.conv1_b = layers.Conv2D(
-            self.features, (1, 1), strides=1, use_bias=False
+            self.features, (1, 1), strides=1, use_bias=True
         )
         if self.batch_norm:
             self.bn1_b = layers.BatchNormalization()
         self.activation1_b = layers.Activation("relu6")
-        self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(3, 3), padding="same", strides=self.strides, use_bias=False)
+        self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(3, 3), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_b = layers.BatchNormalization()
         self.dropout_b = layers.Dropout(self.dropout_rate)
         self.activation2_b = layers.Activation("relu6")
        
         self.conv1_c = layers.Conv2D(
-            self.features, (1, 1), strides=1, use_bias=False
+            self.features, (1, 1), strides=1, use_bias=True
         )
         if self.batch_norm:
             self.bn1_c = layers.BatchNormalization()
         self.activation1_c = layers.Activation("relu6")
-        self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(5, 5), padding="same", strides=self.strides, use_bias=False)
+        self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(5, 5), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_c = layers.BatchNormalization()
         self.dropout_c = layers.Dropout(self.dropout_rate)
         self.activation2_c = layers.Activation("relu6")
         
         self.conv1_d = layers.Conv2D(
-            self.features, (1, 1), strides=1, use_bias=False
+            self.features, (1, 1), strides=1, use_bias=True
         )
         if self.batch_norm:
             self.bn1_d = layers.BatchNormalization()
         self.activation1_d = layers.Activation("relu6")
-        self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(7, 7), padding="same", strides=self.strides, use_bias=False)
+        self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(7, 7), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_d = layers.BatchNormalization()
         self.dropout_d = layers.Dropout(self.dropout_rate)
@@ -297,7 +297,7 @@ class ASPPBlock(layers.Layer):
         else:
             self.squeeze_excite = layers.Lambda(lambda x:x) #layers.Layer()
             
-        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same", use_bias=False)
+        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same", use_bias=True)
         if self.batch_norm:
             self.bn3 = layers.BatchNormalization()
 
