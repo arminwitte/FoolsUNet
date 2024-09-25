@@ -246,7 +246,7 @@ class ASPPBlock(layers.Layer):
         if self.batch_norm:
             self.bn1_a = layers.BatchNormalization()
         self.activation1_a = layers.Activation("relu6")
-        self.dwise_a = layers.DepthwiseConv2D(3, dilation_rate=(1, 1), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_a = layers.DepthwiseConv2D(1, dilation_rate=(1, 1), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_a = layers.BatchNormalization()
         self.dropout_a = layers.Dropout(self.dropout_rate)
@@ -258,7 +258,7 @@ class ASPPBlock(layers.Layer):
         if self.batch_norm:
             self.bn1_b = layers.BatchNormalization()
         self.activation1_b = layers.Activation("relu6")
-        self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(3, 3), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(6, 6), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_b = layers.BatchNormalization()
         self.dropout_b = layers.Dropout(self.dropout_rate)
@@ -270,7 +270,7 @@ class ASPPBlock(layers.Layer):
         if self.batch_norm:
             self.bn1_c = layers.BatchNormalization()
         self.activation1_c = layers.Activation("relu6")
-        self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(5, 5), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(12, 12), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_c = layers.BatchNormalization()
         self.dropout_c = layers.Dropout(self.dropout_rate)
@@ -282,7 +282,7 @@ class ASPPBlock(layers.Layer):
         if self.batch_norm:
             self.bn1_d = layers.BatchNormalization()
         self.activation1_d = layers.Activation("relu6")
-        self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(7, 7), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(18, 18), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_d = layers.BatchNormalization()
         self.dropout_d = layers.Dropout(self.dropout_rate)
