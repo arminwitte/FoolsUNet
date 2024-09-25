@@ -101,7 +101,8 @@ def foolsunet(num_transformers=0, channel_attention=""):
         # InverseResidualBlock(24, strides=2),
         downsample(64, 3, apply_batchnorm=False, name="block_1_downsample"),  # (batch_size, 128, 128, 64)
         # InverseResidualBlock(32, strides=2),
-        downsample(128, 3, name="block_2_downsample"),  # (batch_size, 64, 64, 128)
+        # downsample(128, 3, name="block_2_downsample"),  # (batch_size, 64, 64, 128)
+        downsample1(48, 3, channel_attention=channel_attention, name="block_2_invres_downsample"),  # (batch_size, 64, 64, 128)
         downsample1(64, 3, channel_attention=channel_attention, name="block_3_invres_downsample"),  # (batch_size, 32, 32, 256)
         downsample1(96, 3, channel_attention=channel_attention, name="block_4_invres_downsample"),  # (batch_size, 16, 16, 512)
         downsample1(128, 3, channel_attention=channel_attention, name="block_5_invres_downsample"),  # (batch_size, 8, 8, 512)
