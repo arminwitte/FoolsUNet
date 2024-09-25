@@ -71,7 +71,7 @@ class EfficientChannelAttention(layers.Layer):
         
         # self.conv1 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
         # self.activation1 = layers.Activation("leakyrelu")
-        self.conv2 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=True)
+        self.conv2 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
         self.activation2 = layers.Activation("sigmoid")
 
         self.multiply = layers.Multiply()
