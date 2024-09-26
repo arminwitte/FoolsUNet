@@ -221,6 +221,6 @@ def classification_head(num_classes=1000, input_shape=(None, 32, 32, 64)):
 
         # Final layer
         x = layers.Conv2D(num_classes, (1, 1), strides=(1, 1))(x)
-        x = layers.Flatten(name="class_out")()
+        x = layers.Flatten(name="class_out")(x)
 
         return tf.keras.Model(inputs=inputs, outputs=x)
