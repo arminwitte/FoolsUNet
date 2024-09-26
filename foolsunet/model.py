@@ -171,13 +171,14 @@ def foolsunet(num_transformers=0, channel_attention=""):
 # ====================================================================================
 
 def encoder(channel_attention="eca"):
+    N = 32
 
     # Input layer (batch, 256, 256, 3)
     inputs = layers.Input(shape=[256, 256, 3], name="block_0_input")
     x = inputs
 
     # Initial conv block (batch, 256, 256, 3) -> (batch, 128, 128, 32)
-    filters = 32
+    filters = N
     x = layers.Conv2D(
             filters,
             (3,3),
@@ -191,7 +192,7 @@ def encoder(channel_attention="eca"):
     x = layers.LeakyReLU()(x)
 
     # ASPP block (batch, 128, 128, 32) -> (batch, 64, 64, 48)
-    filters = filters * 3 // 2   
+    filters += (N // 2)
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_0")(x)
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_2_downsample")(x)
@@ -208,7 +209,7 @@ def encoder(channel_attention="eca"):
     x = layers.LeakyReLU()(x)
 
     # ASPP block (batch, 64, 64, 48) -> (batch, 32, 32, 64)
-    filters = filters * 3 // 2    
+    filters += (N // 2)
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_0")(x)
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
