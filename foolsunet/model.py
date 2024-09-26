@@ -191,22 +191,22 @@ def encoder(channel_attention="eca"):
     x = layers.LeakyReLU()(x)
 
     # ASPP block (batch, 128, 128, 32) -> (batch, 64, 64, 48)
-    filters *= 3 // 2    
+    filters = filters * 3 // 2   
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_0")(x)
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_1")(x)
     x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_2_downsample")(x)
 
     # ASPP block (batch, 64, 64, 48) -> (batch, 32, 32, 64)
-    filters *= 3 // 2    
+    filters = filters * 3 // 2    
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_0")(x)
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_1")(x)
     x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
 
     return tf.keras.Model(inputs=inputs, outputs=x)
 
-def classification_head(num_classses=1000, input_channels=64):
+def classification_head(num_classses=1000, input_shape=(None, 32, 32, 64)):
         
-        inputs = layers.Input(shape=(None, None, None, input_channels))
+        inputs = layers.Input(shape=input_shape)
         x = inputs
         x = layers.Conv2D(960, (1, 1), strides=(1, 1))(x)
         x = layers.BatchNormalization()(x)
