@@ -170,7 +170,7 @@ def foolsunet(num_transformers=0, channel_attention=""):
 
 # ====================================================================================
 
-def encoder(N=16, channel_attention="eca"):
+def encoder(N=8, channel_attention="eca"):
 
     # Input layer (batch, 256, 256, 3)
     inputs = layers.Input(shape=[256, 256, 3], name="block_0_input")
@@ -179,7 +179,7 @@ def encoder(N=16, channel_attention="eca"):
     # Initial conv block (batch, 256, 256, 3) -> (batch, 128, 128, 32)
     filters = N
     x = layers.Conv2D(
-            filters * 2,
+            filters * 4,
             (3,3),
             strides=2,
             padding="same",
@@ -191,7 +191,8 @@ def encoder(N=16, channel_attention="eca"):
     x = layers.LeakyReLU()(x)
 
     # ASPP block (batch, 128, 128, 32) -> (batch, 64, 64, 48)
-    filters += (N // 2)
+    # filters += (N // 2)
+    filters = filters * 3 // 2
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_0")(x)
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_2_downsample")(x)
@@ -208,7 +209,8 @@ def encoder(N=16, channel_attention="eca"):
     x = layers.LeakyReLU()(x)
 
     # ASPP block (batch, 64, 64, 48) -> (batch, 32, 32, 64)
-    filters += (N // 2)
+    # filters += (N // 2)
+    filters = filters * 3 // 2
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_0")(x)
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
@@ -225,7 +227,8 @@ def encoder(N=16, channel_attention="eca"):
     x = layers.LeakyReLU()(x)
 
     # ASPP block (batch, 32, 32, 64) -> (batch, 16, 16, 72)
-    filters += (N // 2)
+    # filters += (N // 2)
+    filters = filters * 3 // 2
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_4_conv_0")(x)
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_4_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
@@ -244,16 +247,16 @@ def encoder(N=16, channel_attention="eca"):
     return tf.keras.Model(inputs=inputs, outputs=x)
 
 def classification_head(num_classes=1000, input_shape=(None, 32, 32, 64)):
-        
+        n = 480
         inputs = layers.Input(shape=input_shape)
         x = inputs
-        x = layers.Conv2D(960, (1, 1), strides=(1, 1))(x)
+        x = layers.Conv2D(n, (1, 1), strides=(1, 1))(x)
         x = layers.BatchNormalization()(x)
         x = layers.Activation("hard_silu")(x)
 
         # Pooling layer
         x = layers.GlobalAveragePooling2D()(x)
-        x = layers.Reshape((1, 1, 960))(x)
+        x = layers.Reshape((1, 1, n))(x)
 
         x = layers.Conv2D(1280, (1, 1), strides=(1, 1))(x)
         x = layers.Activation("hard_silu")(x)
