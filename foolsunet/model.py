@@ -204,7 +204,7 @@ def encoder(channel_attention="eca"):
 
     return tf.keras.Model(inputs=inputs, outputs=x)
 
-def classification_head(num_classses=1000, input_shape=(None, 32, 32, 64)):
+def classification_head(num_classes=1000, input_shape=(None, 32, 32, 64)):
         
         inputs = layers.Input(shape=input_shape)
         x = inputs
