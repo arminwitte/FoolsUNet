@@ -170,8 +170,8 @@ def foolsunet(num_transformers=0, channel_attention=""):
 
 # ====================================================================================
 
-def encoder(channel_attention="eca"):
-    N = 32
+def encoder(N=16, channel_attention="eca"):
+    N = 16
 
     # Input layer (batch, 256, 256, 3)
     inputs = layers.Input(shape=[256, 256, 3], name="block_0_input")
@@ -180,7 +180,7 @@ def encoder(channel_attention="eca"):
     # Initial conv block (batch, 256, 256, 3) -> (batch, 128, 128, 32)
     filters = N
     x = layers.Conv2D(
-            filters,
+            filters * 2,
             (3,3),
             strides=2,
             padding="same",
