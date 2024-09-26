@@ -224,6 +224,23 @@ def encoder(N=16, channel_attention="eca"):
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
 
+    # ASPP block (batch, 32, 32, 64) -> (batch, 16, 16, 72)
+    filters += (N // 2)
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_4_conv_0")(x)
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_4_conv_1")(x)
+    # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
+    x = layers.Conv2D(
+            filters,
+            (3,3),
+            strides=2,
+            padding="same",
+            # kernel_initializer=initializer,
+            use_bias=False,
+            name="block_4_downsample",
+        )(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU()(x)
+
     return tf.keras.Model(inputs=inputs, outputs=x)
 
 def classification_head(num_classes=1000, input_shape=(None, 32, 32, 64)):
