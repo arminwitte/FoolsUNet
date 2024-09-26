@@ -204,9 +204,9 @@ def encoder(channel_attention="eca"):
 
     return tf.keras.Model(inputs=inputs, outputs=x)
 
-def classification_head(num_classses=1000):
+def classification_head(num_classses=1000, input_channels=64):
         
-        inputs = layers.Input(shape=(None, None, None, None))
+        inputs = layers.Input(shape=(None, None, None, input_channels))
         x = inputs
         x = layers.Conv2D(960, (1, 1), strides=(1, 1))(x)
         x = layers.BatchNormalization()(x)
