@@ -183,7 +183,7 @@ def encoder(channel_attention="eca"):
             (3,3),
             strides=2,
             padding="same",
-            kernel_initializer=initializer,
+            # kernel_initializer=initializer,
             use_bias=False,
             name="block_1_downsample",
         )(x)
