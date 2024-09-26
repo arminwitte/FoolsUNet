@@ -171,7 +171,6 @@ def foolsunet(num_transformers=0, channel_attention=""):
 # ====================================================================================
 
 def encoder(N=16, channel_attention="eca"):
-    N = 16
 
     # Input layer (batch, 256, 256, 3)
     inputs = layers.Input(shape=[256, 256, 3], name="block_0_input")
