@@ -170,7 +170,7 @@ def foolsunet(num_transformers=0, channel_attention=""):
 
 # ====================================================================================
 
-def encoder(N=8, channel_attention="eca"):
+def encoder(N=16, channel_attention="eca"):
 
     # Input layer (batch, 256, 256, 3)
     inputs = layers.Input(shape=[256, 256, 3], name="block_0_input")
@@ -194,7 +194,7 @@ def encoder(N=8, channel_attention="eca"):
     # filters += (N // 2)
     filters = filters * 3 // 2
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_0")(x)
-    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_1")(x)
+    # x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_2_downsample")(x)
     x = layers.Conv2D(
             filters,
@@ -212,7 +212,7 @@ def encoder(N=8, channel_attention="eca"):
     # filters += (N // 2)
     filters = filters * 3 // 2
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_0")(x)
-    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_1")(x)
+    # x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
     x = layers.Conv2D(
             filters,
@@ -230,7 +230,7 @@ def encoder(N=8, channel_attention="eca"):
     # filters += (N // 2)
     filters = filters * 3 // 2
     x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_4_conv_0")(x)
-    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_4_conv_1")(x)
+    # x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_4_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
     x = layers.Conv2D(
             filters,
