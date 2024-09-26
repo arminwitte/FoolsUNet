@@ -206,7 +206,7 @@ def encoder(channel_attention="eca"):
 
 def classification_head(num_classses=1000):
         
-        inputs = layers.Input()
+        inputs = layers.Input(shape=(None, None, None, None))
         x = inputs
         x = layers.Conv2D(960, (1, 1), strides=(1, 1))(x)
         x = layers.BatchNormalization()(x)
