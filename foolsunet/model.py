@@ -164,3 +164,63 @@ def foolsunet(num_transformers=0, channel_attention=""):
     x = last(x)
 
     return tf.keras.Model(inputs=inputs, outputs=x)
+
+
+
+
+# ====================================================================================
+
+def encoder(channel_attention="eca"):
+
+    # Input layer (batch, 256, 256, 3)
+    inputs = layers.Input(shape=[256, 256, 3], name="block_0_input")
+    x = inputs
+
+    # Initial conv block (batch, 256, 256, 3) -> (batch, 128, 128, 32)
+    filters = 32
+    x = layers.Conv2D(
+            filters,
+            (3,3),
+            strides=2,
+            padding="same",
+            kernel_initializer=initializer,
+            use_bias=False,
+            name="block_1_downsample",
+        )(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU()(x)
+
+    # ASPP block (batch, 128, 128, 32) -> (batch, 64, 64, 48)
+    filters *= 3 // 2    
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_0")(x)
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_1")(x)
+    x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_2_downsample")(x)
+
+    # ASPP block (batch, 64, 64, 48) -> (batch, 32, 32, 64)
+    filters *= 3 // 2    
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_0")(x)
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_1")(x)
+    x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
+
+    return tf.keras.Model(inputs=inputs, outputs=x)
+
+def classification_head(num_classses=1000):
+        
+        inputs = layers.Input()
+        x = inputs
+        x = layers.Conv2D(960, (1, 1), strides=(1, 1))(x)
+        x = layers.BatchNormalization()(x)
+        x = layers.Activation("hard_silu")(x)
+
+        # Pooling layer
+        x = layers.GlobalAveragePooling2D()(x)
+        x = layers.Reshape((1, 1, 960))(x)
+
+        x = layers.Conv2D(1280, (1, 1), strides=(1, 1))(x)
+        x = layers.Activation("hard_silu")(x)
+
+        # Final layer
+        x = layers.Conv2D(num_classes, (1, 1), strides=(1, 1))(x)
+        x = layers.Flatten(name="class_out")()
+
+        return tf.keras.Model(inputs=inputs, outputs=x)
