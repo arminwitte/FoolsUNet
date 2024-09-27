@@ -418,12 +418,12 @@ class ASPPBlock2(layers.Layer):
     def build(self, input_shape):
 
 
-        self.conv1 = layers.Conv2D(
-            self.features, (1, 1), strides=1, use_bias=True
-        )
-        if self.batch_norm:
-            self.bn1 = layers.BatchNormalization()
-        self.activation1 = layers.Activation("relu6")
+        # self.conv1 = layers.Conv2D(
+        #     self.features, (1, 1), strides=1, use_bias=True
+        # )
+        # if self.batch_norm:
+        #     self.bn1 = layers.BatchNormalization()
+        # self.activation1 = layers.Activation("relu6")
         
         self.conv_a = layers.Conv2D(self.features, 1, dilation_rate=(1, 1), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
@@ -483,10 +483,10 @@ class ASPPBlock2(layers.Layer):
     def call(self, x):
         shortcut = x
         
-        x = self.conv1(x)
-        if self.batch_norm:
-            x = self.bn1(x)
-        x = self.activation1(x)
+        # x = self.conv1(x)
+        # if self.batch_norm:
+        #     x = self.bn1(x)
+        # x = self.activation1(x)
         
         xa = self.conv_a(x)
         if self.batch_norm:
