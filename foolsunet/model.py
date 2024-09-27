@@ -194,39 +194,40 @@ def encoder(N=8, channel_attention="eca"):
 
     # stage 1 (batch, 128, 128, 24) -> (batch, 128, 128, 24)
     filters = 3 * N
-    x = fl.FusedMBConvBlock(filters, expand_factor=1, channel_attention=channel_attention, name="stage_1_conv_0")(x)
-    x = fl.FusedMBConvBlock(filters, expand_factor=1, channel_attention=channel_attention, name="stage_1_conv_1")(x)
+    # x = fl.FusedMBConvBlock(filters, expand_factor=1, channel_attention=channel_attention, name="stage_1_conv_0")(x)
+    # x = fl.FusedMBConvBlock(filters, expand_factor=1, channel_attention=channel_attention, name="stage_1_conv_1")(x)
 
 
     # stage 2 (batch, 128, 128, 24) -> (batch, 64, 64, 48)
     filters = 6 * N
-    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_0")(x)
-    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_1")(x)
+    # x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_0")(x)
+    # x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_1")(x)
     x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_2")(x)
     x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=2, channel_attention=channel_attention, name="stage_2_conv_3")(x)
 
 
     # stage 3 (batch, 64, 64, 48) -> (batch, 32, 32, 64)
     filters = 8 * N
-    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_0")(x)
-    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_1")(x)
+    # x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_0")(x)
+    # x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_1")(x)
     x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_2")(x)
     x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=2, channel_attention=channel_attention, name="stage_3_conv_3")(x)
 
 
     # stage 4 (batch, 32, 32, 64) -> (batch, 16, 16, 128)
     filters = 16 * N
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_0")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_1")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_2")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_3")(x)
+    # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_0")(x)
+    # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_1")(x)
+    # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_2")(x)
+    # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_3")(x)
     x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_4")(x)
     x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="stage_4_conv_5")(x)
 
 
     # stage 6 (batch, 16, 16, 128) -> (batch, 8, 8, 256)
     filters = 32 * N
-    x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="stage_6_conv_0")(x)
+    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_6_conv_0")(x)
+    x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="stage_6_conv_1")(x)
 
     return tf.keras.Model(inputs=inputs, outputs=x)
 
