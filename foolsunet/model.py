@@ -173,13 +173,13 @@ def foolsunet(num_transformers=0, channel_attention=""):
 def encoder(N=8, channel_attention="eca"):
 
     # Input layer (batch, 256, 256, 3)
-    inputs = layers.Input(shape=[256, 256, 3], name="block_0_input")
+    inputs = layers.Input(shape=[256, 256, 3], name="input")
     x = inputs
 
-    # Initial conv block (batch, 256, 256, 3) -> (batch, 128, 128, 32)
-    filters = N
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_1_conv_0")(x)
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_1_conv_1")(x)
+    # Initial conv block (batch, 256, 256, 3) -> (batch, 128, 128, 24)
+    filters = 3 * N
+    # x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_1_conv_0")(x)
+    # x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_1_conv_1")(x)
     x = layers.Conv2D(
             filters,
             (3,3),
@@ -187,64 +187,46 @@ def encoder(N=8, channel_attention="eca"):
             padding="same",
             # kernel_initializer=initializer,
             use_bias=False,
-            name="block_1_downsample",
+            name="stage_0_downsample",
         )(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
 
-    # ASPP block (batch, 128, 128, 32) -> (batch, 64, 64, 48)
-    # filters += (N // 2)
-    filters = filters * 3 // 2
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_2_conv_0")(x)
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_2_conv_1")(x)
-    # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_2_downsample")(x)
-    x = layers.Conv2D(
-            filters,
-            (3,3),
-            strides=2,
-            padding="same",
-            # kernel_initializer=initializer,
-            use_bias=False,
-            name="block_2_downsample",
-        )(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.LeakyReLU()(x)
+    # stage 1 (batch, 128, 128, 24) -> (batch, 128, 128, 24)
+    filters = 3 * N
+    x = fl.FusedMBConvBlock(filters, expand_factor=1, channel_attention=channel_attention, name="stage_1_conv_0")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=1, channel_attention=channel_attention, name="stage_1_conv_1")(x)
 
-    # ASPP block (batch, 64, 64, 48) -> (batch, 32, 32, 64)
-    # filters += (N // 2)
-    filters = filters * 3 // 2
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_3_conv_0")(x)
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_3_conv_1")(x)
-    # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
-    x = layers.Conv2D(
-            filters,
-            (3,3),
-            strides=2,
-            padding="same",
-            # kernel_initializer=initializer,
-            use_bias=False,
-            name="block_3_downsample",
-        )(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.LeakyReLU()(x)
 
-    # ASPP block (batch, 32, 32, 64) -> (batch, 16, 16, 72)
-    # filters += (N // 2)
-    filters = filters * 3 // 2
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_4_conv_0")(x)
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_4_conv_1")(x)
-    # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
-    x = layers.Conv2D(
-            filters,
-            (3,3),
-            strides=2,
-            padding="same",
-            # kernel_initializer=initializer,
-            use_bias=False,
-            name="block_4_downsample",
-        )(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.LeakyReLU()(x)
+    # stage 2 (batch, 128, 128, 24) -> (batch, 64, 64, 48)
+    filters = 6 * N
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_0")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_1")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_2")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=2, channel_attention=channel_attention, name="stage_2_conv_3")(x)
+
+
+    # stage 3 (batch, 64, 64, 48) -> (batch, 32, 32, 64)
+    filters = 8 * N
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_0")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_1")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_2")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=2, channel_attention=channel_attention, name="stage_3_conv_3")(x)
+
+
+    # stage 4 (batch, 32, 32, 64) -> (batch, 16, 16, 128)
+    filters = 16 * N
+    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_0")(x)
+    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_1")(x)
+    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_2")(x)
+    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_3")(x)
+    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_4")(x)
+    x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="stage_4_conv_5")(x)
+
+
+    # stage 6 (batch, 16, 16, 128) -> (batch, 8, 8, 256)
+    filters = 32 * N
+    x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="stage_6_conv_0")(x)
 
     return tf.keras.Model(inputs=inputs, outputs=x)
 
