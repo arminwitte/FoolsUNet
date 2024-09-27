@@ -178,6 +178,7 @@ def encoder(N=16, channel_attention="eca"):
 
     # Initial conv block (batch, 256, 256, 3) -> (batch, 128, 128, 32)
     filters = N
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_1_conv_0")(x)
     x = layers.Conv2D(
             filters * 4,
             (3,3),
