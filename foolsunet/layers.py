@@ -437,7 +437,7 @@ class ASPPBlock2(layers.Layer):
         # if self.batch_norm:
         #     self.bn1_b = layers.BatchNormalization()
         # self.activation1_b = layers.Activation("relu6")
-        self.conv_b = layers.Conv2D(, self.features, 3, dilation_rate=(6, 6), padding="same", strides=self.strides, use_bias=True)
+        self.conv_b = layers.Conv2D(self.features, 3, dilation_rate=(6, 6), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_b = layers.BatchNormalization()
         self.dropout_b = layers.Dropout(self.dropout_rate)
