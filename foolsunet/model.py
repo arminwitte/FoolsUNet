@@ -178,7 +178,7 @@ def encoder(N=16, channel_attention="eca"):
 
     # Initial conv block (batch, 256, 256, 3) -> (batch, 128, 128, 32)
     filters = N
-    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_1_conv_0")(x)
+    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_1_conv_0")(x)
     x = layers.Conv2D(
             filters * 4,
             (3,3),
@@ -194,7 +194,7 @@ def encoder(N=16, channel_attention="eca"):
     # ASPP block (batch, 128, 128, 32) -> (batch, 64, 64, 48)
     # filters += (N // 2)
     filters = filters * 3 // 2
-    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_0")(x)
+    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_2_conv_0")(x)
     # x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_2_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_2_downsample")(x)
     x = layers.Conv2D(
@@ -212,7 +212,7 @@ def encoder(N=16, channel_attention="eca"):
     # ASPP block (batch, 64, 64, 48) -> (batch, 32, 32, 64)
     # filters += (N // 2)
     filters = filters * 3 // 2
-    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_0")(x)
+    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_3_conv_0")(x)
     # x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_3_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
     x = layers.Conv2D(
@@ -230,7 +230,7 @@ def encoder(N=16, channel_attention="eca"):
     # ASPP block (batch, 32, 32, 64) -> (batch, 16, 16, 72)
     # filters += (N // 2)
     filters = filters * 3 // 2
-    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_4_conv_0")(x)
+    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_4_conv_0")(x)
     # x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="block_4_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="block_3_downsample")(x)
     x = layers.Conv2D(
