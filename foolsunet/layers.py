@@ -485,10 +485,10 @@ class ASPPBlock2(layers.Layer):
         
         x = self.conv1(x)
         if self.batch_norm:
-            xa = self.bn1(x)
-            
-        xa = self.activation1_a(x)
-        xa = self.conv_a(xa)
+            x = self.bn1(x)
+        x = self.activation1(x)
+        
+        xa = self.conv_a(x)
         if self.batch_norm:
             xa = self.bn2_a(xa)
         xa = self.dropout_a(xa)
