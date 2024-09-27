@@ -193,6 +193,79 @@ class InverseResidualBlock(layers.Layer):
 
 
 
+
+@tf.keras.utils.register_keras_serializable()
+class FusedMBConvBlock(layers.Layer):
+    def __init__(
+        self, features=16, expand_factor=4, strides=1, batch_norm=True, channel_attention="", **kwargs
+    ):
+        super().__init__(**kwargs)
+        self.features = features
+        self.expand_factor = expand_factor
+        self.strides = strides
+        self.batch_norm = batch_norm
+        self.channel_attention = channel_attention 
+
+    def get_config(self):
+        config = super().get_config()
+        config.update(
+            {
+                "features": self.features,
+                "expand_factor": self.expand_factor,
+                "strides": self.strides,
+                "batch_norm": self.batch_norm,
+                "channel_attention": self.channel_attention,
+            }
+        )
+        return config
+
+    def build(self, input_shape):
+        self.conv1 = layers.Conv2D(
+            self.features * self.expand_factor, (3, 3), strides=1
+        )
+        if self.batch_norm:
+            self.bn1 = layers.BatchNormalization()
+        self.activation1 = layers.Activation("relu6")
+        
+        if self.channel_attention == "eca":
+            self.squeeze_excite = EfficientChannelAttention(kernel_size=3)
+        elif self.channel_attention == "se": 
+            self.squeeze_excite = SqueezeExcite(ratio=4)
+        else:
+            self.squeeze_excite = layers.Lambda(lambda x:x) #layers.Layer()
+            
+        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same")
+        if self.batch_norm:
+            self.bn2 = layers.BatchNormalization()
+
+    def call(self, x):
+        shortcut = x
+        x = self.conv1(x)
+        if self.batch_norm:
+            x = self.bn1(x)
+        x = self.activation1(x)
+        x = self.squeeze_excite(x)
+        x = self.conv2(x)
+        if self.batch_norm:
+            x = self.bn2(x)
+        if (
+            # stride check enforces that we don't add residuals when spatial
+            # dimensions are None
+            self.strides == 1
+            and
+            # Depth matches
+            x.get_shape().as_list()[3] == shortcut.get_shape().as_list()[3]
+        ):
+            x = tf.keras.layers.Add()([x, shortcut])
+
+        return x
+
+
+
+
+
+
+
 @tf.keras.utils.register_keras_serializable()
 class ASPPBlock(layers.Layer):
     """Implements an Inverse Residual Block like in MobileNetV2 and MobileNetV3
