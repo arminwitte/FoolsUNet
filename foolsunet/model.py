@@ -189,8 +189,8 @@ def encoder(N=8, channel_attention="eca"):
             use_bias=False,
             name="stage_0_downsample",
         )(x)
-    # x = layers.BatchNormalization()(x)
-    x = layers.LeakyReLU()(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation("relu6")(x)
 
     # stage 1 (batch, 128, 128, 24) -> (batch, 128, 128, 24)
     filters = 3 * N
@@ -202,16 +202,16 @@ def encoder(N=8, channel_attention="eca"):
     filters = 6 * N
     # x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_0")(x)
     # x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_1")(x)
-    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_2_conv_2")(x)
-    x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=2, channel_attention=channel_attention, name="stage_2_conv_3")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=2, channel_attention=channel_attention, name="stage_2_conv_2")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=1, channel_attention=channel_attention, name="stage_2_conv_3")(x)
 
 
     # stage 3 (batch, 64, 64, 48) -> (batch, 32, 32, 64)
     filters = 8 * N
     # x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_0")(x)
     # x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_1")(x)
-    x = fl.FusedMBConvBlock(filters, expand_factor=4, channel_attention=channel_attention, name="stage_3_conv_2")(x)
-    x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=2, channel_attention=channel_attention, name="stage_3_conv_3")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=2, channel_attention=channel_attention, name="stage_3_conv_2")(x)
+    x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=1, channel_attention=channel_attention, name="stage_3_conv_3")(x)
 
 
     # stage 4 (batch, 32, 32, 64) -> (batch, 16, 16, 128)
@@ -220,19 +220,19 @@ def encoder(N=8, channel_attention="eca"):
     # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_2")(x)
     # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_3")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_4")(x)
-    x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="stage_4_conv_5")(x)
+    x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="stage_4_conv_4")(x)
+    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_5")(x)
 
 
     # stage 6 (batch, 16, 16, 128) -> (batch, 8, 8, 256)
     filters = 32 * N
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_6_conv_0")(x)
-    x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="stage_6_conv_1")(x)
+    x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="stage_6_conv_0")(x)
+    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_6_conv_1")(x)
 
     return tf.keras.Model(inputs=inputs, outputs=x)
 
 def classification_head(num_classes=1000, input_shape=(None, 32, 32, 64)):
-        n = 480
+        n = 960
         inputs = layers.Input(shape=input_shape)
         x = inputs
         x = layers.Conv2D(n, (1, 1), strides=(1, 1))(x)
@@ -244,6 +244,7 @@ def classification_head(num_classes=1000, input_shape=(None, 32, 32, 64)):
         x = layers.Reshape((1, 1, n))(x)
 
         x = layers.Conv2D(1280, (1, 1), strides=(1, 1))(x)
+        x = layers.Dropout(0.5)(x)
         x = layers.Activation("hard_silu")(x)
 
         # Final layer
