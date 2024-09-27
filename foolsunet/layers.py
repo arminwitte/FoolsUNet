@@ -221,7 +221,7 @@ class FusedMBConvBlock(layers.Layer):
 
     def build(self, input_shape):
         self.conv1 = layers.Conv2D(
-            self.features * self.expand_factor, (3, 3), strides=1
+            self.features * self.expand_factor, (3, 3), strides=1, padding="same"
         )
         if self.batch_norm:
             self.bn1 = layers.BatchNormalization()
