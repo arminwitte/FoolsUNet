@@ -180,7 +180,7 @@ def encoder(N=16, channel_attention="eca"):
     filters = N
     x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_1_conv_0")(x)
     x = layers.Conv2D(
-            filters * 4,
+            filters,
             (3,3),
             strides=2,
             padding="same",
