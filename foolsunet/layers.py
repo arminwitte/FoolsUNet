@@ -371,6 +371,187 @@ class ASPPBlock(layers.Layer):
 
 
 
+@tf.keras.utils.register_keras_serializable()
+class ASPPBlock2(layers.Layer):
+    """Implements an Inverse Residual Block like in MobileNetV2 and MobileNetV3
+
+    https://stackoverflow.com/a/61334159
+
+    Args:
+        features: Number of features.
+        expand_factor: factor by witch to expand number of layers
+        strides: Stride used in last convolution.
+        batch_norm: flag if Batch Normalisation should be used.
+
+    Inputs:
+        Convolutional features.
+
+    Outputs:
+        Modified feature maps.
+    """
+
+    def __init__(
+        self, features=16, expand_factor=4, strides=1, batch_norm=True, channel_attention="", dropout_rate=0.1, **kwargs
+    ):
+        super().__init__(**kwargs)
+        self.features = features
+        self.expand_factor = expand_factor
+        self.strides = strides
+        self.batch_norm = batch_norm
+        self.channel_attention = channel_attention
+        self.dropout_rate = dropout_rate
+        
+    def get_config(self):
+        config = super().get_config()
+        config.update(
+            {
+                "features": self.features,
+                "expand_factor": self.expand_factor,
+                "strides": self.strides,
+                "batch_norm": self.batch_norm,
+                "channel_attention": self.channel_attention,
+                "dropout_rate": self.dropout_rate,
+            }
+        )
+        return config
+
+    def build(self, input_shape):
+
+
+        self.conv1 = layers.Conv2D(
+            self.features, (1, 1), strides=1, use_bias=True
+        )
+        if self.batch_norm:
+            self.bn1 = layers.BatchNormalization()
+        self.activation1 = layers.Activation("relu6")
+        
+        self.conv_a = layers.Conv2D(self.features, 1, dilation_rate=(1, 1), padding="same", strides=self.strides, use_bias=True)
+        if self.batch_norm:
+            self.bn2_a = layers.BatchNormalization()
+        self.dropout_a = layers.Dropout(self.dropout_rate)
+        self.activation2_a = layers.Activation("relu6")
+
+        # self.conv1_b = layers.Conv2D(
+        #     self.features, (1, 1), strides=1, use_bias=True
+        # )
+        # if self.batch_norm:
+        #     self.bn1_b = layers.BatchNormalization()
+        # self.activation1_b = layers.Activation("relu6")
+        self.conv_b = layers.Conv2D(, self.features, 3, dilation_rate=(6, 6), padding="same", strides=self.strides, use_bias=True)
+        if self.batch_norm:
+            self.bn2_b = layers.BatchNormalization()
+        self.dropout_b = layers.Dropout(self.dropout_rate)
+        self.activation2_b = layers.Activation("relu6")
+       
+        # self.conv1_c = layers.Conv2D(
+        #     self.features, (1, 1), strides=1, use_bias=True
+        # )
+        # if self.batch_norm:
+        #     self.bn1_c = layers.BatchNormalization()
+        # self.activation1_c = layers.Activation("relu6")
+        self.conv_c = layers.Conv2D(self.features, 3, dilation_rate=(12, 12), padding="same", strides=self.strides, use_bias=True)
+        if self.batch_norm:
+            self.bn2_c = layers.BatchNormalization()
+        self.dropout_c = layers.Dropout(self.dropout_rate)
+        self.activation2_c = layers.Activation("relu6")
+        
+        # self.conv1_d = layers.Conv2D(
+        #     self.features, (1, 1), strides=1, use_bias=True
+        # )
+        # if self.batch_norm:
+        #     self.bn1_d = layers.BatchNormalization()
+        # self.activation1_d = layers.Activation("relu6")
+        self.conv_d = layers.Conv2D(self.features, 3, dilation_rate=(18, 18), padding="same", strides=self.strides, use_bias=True)
+        if self.batch_norm:
+            self.bn2_d = layers.BatchNormalization()
+        self.dropout_d = layers.Dropout(self.dropout_rate)
+        self.activation2_d = layers.Activation("relu6")
+        
+        
+        
+        if self.channel_attention == "eca":
+            self.squeeze_excite = EfficientChannelAttention(kernel_size=3)
+        elif self.channel_attention == "se": 
+            self.squeeze_excite = SqueezeExcite(ratio=4)
+        else:
+            self.squeeze_excite = layers.Lambda(lambda x:x) #layers.Layer()
+            
+        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same", use_bias=True)
+        if self.batch_norm:
+            self.bn3 = layers.BatchNormalization()
+
+    def call(self, x):
+        shortcut = x
+        
+        x = self.conv1(x)
+        if self.batch_norm:
+            xa = self.bn1(x)
+            
+        xa = self.activation1_a(x)
+        xa = self.conv_a(xa)
+        if self.batch_norm:
+            xa = self.bn2_a(xa)
+        xa = self.dropout_a(xa)
+        xa = self.activation2_a(xa)
+
+
+        # xb = self.conv1_b(x)
+        # if self.batch_norm:
+        #     xb = self.bn1_b(xb)
+        # xb = self.activation1_b(xb)
+        xb = self.conv_b(x)
+        if self.batch_norm:
+            xb = self.bn2_b(xb)
+        xb = self.dropout_b(xb)
+        xb = self.activation2_b(xb)
+
+
+        # xc = self.conv1_c(x)
+        # if self.batch_norm:
+        #     xc = self.bn1_c(xc)
+        # xc = self.activation1_c(xc)
+        xc = self.conv_c(x)
+        if self.batch_norm:
+            xc = self.bn2_c(xc)
+        xc = self.dropout_c(xc)
+        xc = self.activation2_c(xc)
+
+
+        # xd = self.conv1_d(x)
+        # if self.batch_norm:
+        #     xd = self.bn1_d(xd)
+        # xd = self.activation1_d(xd)
+        xd = self.conv_d(x)
+        if self.batch_norm:
+            xd = self.bn2_d(xd)
+        xd = self.dropout_d(xd)
+        xd = self.activation2_d(xd)
+
+
+        x = layers.Concatenate()([xa, xb, xc, xd])
+        x = self.squeeze_excite(x)
+        x = self.conv2(x)
+        if self.batch_norm:
+            x = self.bn3(x)
+        if (
+            # stride check enforces that we don't add residuals when spatial
+            # dimensions are None
+            self.strides == 1
+            and
+            # Depth matches
+            x.get_shape().as_list()[3] == shortcut.get_shape().as_list()[3]
+        ):
+            x = tf.keras.layers.Add()([x, shortcut])
+
+        return x
+
+
+
+
+
+
+
+
 
 
 
