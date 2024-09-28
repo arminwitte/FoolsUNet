@@ -51,6 +51,9 @@ class SqueezeExcite(layers.Layer):
 
 @tf.keras.utils.register_keras_serializable()
 class EfficientChannelAttention(layers.Layer):
+    """
+    https://blog.paperspace.com/attention-mechanisms-in-computer-vision-ecanet/
+    """
     
     def __init__(self, kernel_size, **kwargs):
         super().__init__(**kwargs)
