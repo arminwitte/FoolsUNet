@@ -225,15 +225,15 @@ def encoder(N=8, channel_attention="eca"):
 
     # stage 5 (batch, 32, 32, 128) -> (batch, 32, 32, 160)
     filters = 20 * N
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_5_conv_0")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_5_conv_1")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_5_conv_2")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_5_conv_3")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_5_conv_4")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_5_conv_5")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_5_conv_6")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_5_conv_7")(x)
-    x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_5_conv_8")(x)
+    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_0")(x)
+    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_1")(x)
+    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_2")(x)
+    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_3")(x)
+    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_4")(x)
+    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_5")(x)
+    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_6")(x)
+    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_7")(x)
+    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_8")(x)
 
     # x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="block_1_conv_0")(x)
     
@@ -242,7 +242,7 @@ def encoder(N=8, channel_attention="eca"):
     filters = 32 * N
     for i in range(15):
         s = 2 if i == 0 else 1
-        x = fl.InverseResidualBlock(filters, strides=s, channel_attention=channel_attention, name=f"stage_6_conv_{i}")(x)
+        x = fl.InverseResidualBlock(filters, expand_factor=6, strides=s, channel_attention=channel_attention, name=f"stage_6_conv_{i}")(x)
     # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_6_conv_1")(x)
 
     return tf.keras.Model(inputs=inputs, outputs=x)
