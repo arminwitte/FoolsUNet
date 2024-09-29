@@ -68,7 +68,7 @@ class EfficientChannelAttention(layers.Layer):
         channels = input_shape[-1]
 
         if self.kernel_size < 1:
-            log2c = float(tf.math.log(tf.constant(channels))/tf.math.log(tf.constant(2.0))).numpy().squeeze())
+            log2c = float((tf.math.log(tf.constant(channels))/tf.math.log(tf.constant(2.0))).numpy().squeeze())
             self.kernel_size = max(3, ((log2c / 2) // 2) * 2 + 1)
         
         self.squeeze = layers.GlobalAveragePooling2D(keepdims=False)
