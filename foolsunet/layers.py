@@ -368,6 +368,13 @@ class ASPPBlock(layers.Layer):
             self.bn2_d = layers.BatchNormalization()
         self.dropout_d = layers.Dropout(self.dropout_rate)
         self.activation2_d = layers.Activation("relu6")
+
+        # self.pool_e = layers.GlobalAveragePooling2D()
+        # y_pool = Conv2D(filters=256, kernel_size=1, padding='same', kernel_initializer='he_normal', name='pool_1x1conv2d', use_bias=False)(y_pool)
+        # y_pool = BatchNormalization(name=f'bn_1')(y_pool)
+        # y_pool = Activation('relu', name=f'relu_1')(y_pool)
+
+        # y_pool = Upsample(tensor=y_pool, size=[dims[1], dims[2]])
         
         
         
