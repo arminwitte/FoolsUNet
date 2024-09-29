@@ -370,12 +370,11 @@ class ASPPBlock(layers.Layer):
         self.activation2_d = layers.Activation("relu6")
 
         self.pool_e = layers.GlobalAveragePooling2D(keep_dims=True)
-        self.conv1_e = Conv2D(filters=self.features, kernel_size=1, padding='same', kernel_initializer='he_normal', use_bias=False)
+        self.conv1_e = layers.Conv2D(filters=self.features, kernel_size=1, padding='same', kernel_initializer='he_normal', use_bias=False)
         if self.batch_norm:
             self.bn2_e = layers.BatchNormalization()
         self.dropout_e = layers.Dropout(self.dropout_rate)
         self.activation2_e = layers.Activation("relu6")
-
         self.upsample = layers.UpSampling3D(size=input_shape[1:3], interpolation="nearest")
         
         
@@ -443,7 +442,6 @@ class ASPPBlock(layers.Layer):
             xe = self.bn2_e(xe)
         xe = self.dropout_e(xe)
         xe = self.activation2_e(xe)
-
         xe = self.upsample(x)
 
 
@@ -471,7 +469,7 @@ class ASPPBlock(layers.Layer):
 
 
 @tf.keras.utils.register_keras_serializable()
-class ASPPBlock2(layers.Layer):
+class FusedASPPBlock(layers.Layer):
     """Implements an Inverse Residual Block like in MobileNetV2 and MobileNetV3
 
     https://stackoverflow.com/a/61334159
@@ -565,7 +563,16 @@ class ASPPBlock2(layers.Layer):
             self.bn2_d = layers.BatchNormalization()
         self.dropout_d = layers.Dropout(self.dropout_rate)
         self.activation2_d = layers.Activation("relu6")
+
+        self.pool_e = layers.GlobalAveragePooling2D(keep_dims=True)
+        self.conv1_e = layers.Conv2D(filters=self.features, kernel_size=1, padding='same', kernel_initializer='he_normal', use_bias=False)
+        if self.batch_norm:
+            self.bn2_e = layers.BatchNormalization()
+        self.dropout_e = layers.Dropout(self.dropout_rate)
+        self.activation2_e = layers.Activation("relu6")
+        self.upsample = layers.UpSampling3D(size=input_shape[1:3], interpolation="nearest")
         
+
         
         
         if self.channel_attention == "eca":
@@ -626,8 +633,18 @@ class ASPPBlock2(layers.Layer):
         xd = self.dropout_d(xd)
         xd = self.activation2_d(xd)
 
+        xe = self.pool_e(x)
+        xe = self.conv1_e(xe)
+        if self.batch_norm:
+            xe = self.bn2_e(xe)
+        xe = self.dropout_e(xe)
+        xe = self.activation2_e(xe)
+        xe = self.upsample(x)
 
-        x = layers.Concatenate()([xa, xb, xc, xd])
+
+
+
+        x = layers.Concatenate()([xa, xb, xc, xd, xe])
         x = self.squeeze_excite(x)
         x = self.conv2(x)
         if self.batch_norm:
