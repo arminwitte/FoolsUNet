@@ -202,7 +202,7 @@ def encoder(N=8, channel_attention="eca"):
     filters = 6 * N
     x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=2, channel_attention=channel_attention, name="stage_2_conv_0")(x)
     # x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=1, channel_attention=channel_attention, name="stage_2_conv_1")(x)
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="stage_2_aspp_1")(x)
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="stage_2_aspp_1")(x)
     # x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=1, channel_attention=channel_attention, name="stage_2_conv_2")(x)
     # x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=1, channel_attention=channel_attention, name="stage_2_conv_3")(x)
 
@@ -211,7 +211,7 @@ def encoder(N=8, channel_attention="eca"):
     filters = 8 * N
     x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=2, channel_attention=channel_attention, name="stage_3_conv_0")(x)
     # x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=1, channel_attention=channel_attention, name="stage_3_conv_1")(x)
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="stage_3_aspp_1")(x)
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="stage_3_aspp_1")(x)
     # x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=1, channel_attention=channel_attention, name="stage_3_conv_2")(x)
     # x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=1, channel_attention=channel_attention, name="stage_3_conv_3")(x)
 
@@ -220,7 +220,7 @@ def encoder(N=8, channel_attention="eca"):
     filters = 16 * N
     x = fl.InverseResidualBlock(filters, strides=2, channel_attention=channel_attention, name="stage_4_conv_0")(x)
     # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_1")(x)
-    x = fl.ASPPBlock2(filters, channel_attention=channel_attention, name="stage_4_aspp_1")(x)
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="stage_4_aspp_1")(x)
     # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_2")(x)
     # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_3")(x)
     # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_4_conv_4")(x)
