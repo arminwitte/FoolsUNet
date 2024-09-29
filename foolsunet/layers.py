@@ -375,7 +375,7 @@ class ASPPBlock(layers.Layer):
             self.bn2_e = layers.BatchNormalization()
         self.dropout_e = layers.Dropout(self.dropout_rate)
         self.activation2_e = layers.Activation("relu6")
-        self.upsample = layers.UpSampling3D(size=input_shape[1:3], interpolation="nearest")
+        self.upsample = layers.UpSampling2D(size=input_shape[1:3], interpolation="nearest")
         
         
         
@@ -570,7 +570,7 @@ class FusedASPPBlock(layers.Layer):
             self.bn2_e = layers.BatchNormalization()
         self.dropout_e = layers.Dropout(self.dropout_rate)
         self.activation2_e = layers.Activation("relu6")
-        self.upsample = layers.UpSampling3D(size=input_shape[1:3], interpolation="nearest")
+        self.upsample = layers.UpSampling2D(size=input_shape[1:3], interpolation="nearest")
         
 
         
