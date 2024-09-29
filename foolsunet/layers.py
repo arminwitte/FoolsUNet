@@ -369,7 +369,7 @@ class ASPPBlock(layers.Layer):
         self.dropout_d = layers.Dropout(self.dropout_rate)
         self.activation2_d = layers.Activation("relu6")
 
-        self.pool_e = layers.GlobalAveragePooling2D(keep_dims=True)
+        self.pool_e = layers.GlobalAveragePooling2D(keepdims=True)
         self.conv1_e = layers.Conv2D(filters=self.features, kernel_size=1, padding='same', kernel_initializer='he_normal', use_bias=False)
         if self.batch_norm:
             self.bn2_e = layers.BatchNormalization()
@@ -564,7 +564,7 @@ class FusedASPPBlock(layers.Layer):
         self.dropout_d = layers.Dropout(self.dropout_rate)
         self.activation2_d = layers.Activation("relu6")
 
-        self.pool_e = layers.GlobalAveragePooling2D(keep_dims=True)
+        self.pool_e = layers.GlobalAveragePooling2D(keepdims=True)
         self.conv1_e = layers.Conv2D(filters=self.features, kernel_size=1, padding='same', kernel_initializer='he_normal', use_bias=False)
         if self.batch_norm:
             self.bn2_e = layers.BatchNormalization()
