@@ -339,7 +339,7 @@ class ASPPBlock(layers.Layer):
         if self.batch_norm:
             self.bn1_b = layers.BatchNormalization()
         self.activation1_b = layers.Activation("relu6")
-        self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(6, 6), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(2, 2), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_b = layers.BatchNormalization()
         self.dropout_b = layers.Dropout(self.dropout_rate)
@@ -351,7 +351,7 @@ class ASPPBlock(layers.Layer):
         if self.batch_norm:
             self.bn1_c = layers.BatchNormalization()
         self.activation1_c = layers.Activation("relu6")
-        self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(12, 12), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(3, 3), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_c = layers.BatchNormalization()
         self.dropout_c = layers.Dropout(self.dropout_rate)
@@ -363,18 +363,20 @@ class ASPPBlock(layers.Layer):
         if self.batch_norm:
             self.bn1_d = layers.BatchNormalization()
         self.activation1_d = layers.Activation("relu6")
-        self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(18, 18), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(5, 5), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_d = layers.BatchNormalization()
         self.dropout_d = layers.Dropout(self.dropout_rate)
         self.activation2_d = layers.Activation("relu6")
 
-        # self.pool_e = layers.GlobalAveragePooling2D()
-        # y_pool = Conv2D(filters=256, kernel_size=1, padding='same', kernel_initializer='he_normal', name='pool_1x1conv2d', use_bias=False)(y_pool)
-        # y_pool = BatchNormalization(name=f'bn_1')(y_pool)
-        # y_pool = Activation('relu', name=f'relu_1')(y_pool)
+        self.pool_e = layers.GlobalAveragePooling2D(keep_dims=True)
+        self.conv1_e = Conv2D(filters=self.features, kernel_size=1, padding='same', kernel_initializer='he_normal', use_bias=False)
+        if self.batch_norm:
+            self.bn2_e = layers.BatchNormalization()
+        self.dropout_e = layers.Dropout(self.dropout_rate)
+        self.activation2_e = layers.Activation("relu6")
 
-        # y_pool = Upsample(tensor=y_pool, size=[dims[1], dims[2]])
+        self.upsample = layers.UpSampling3D(size=input_shape[1:3], interpolation="nearest")
         
         
         
@@ -435,8 +437,17 @@ class ASPPBlock(layers.Layer):
         xd = self.dropout_d(xd)
         xd = self.activation2_d(xd)
 
+        xe = self.pool_e(x)
+        xe = self.conv1_e(xe)
+        if self.batch_norm:
+            xe = self.bn2_e(xe)
+        xe = self.dropout_e(xe)
+        xe = self.activation2_e(xe)
 
-        x = layers.Concatenate()([xa, xb, xc, xd])
+        xe = self.upsample(x)
+
+
+        x = layers.Concatenate()([xa, xb, xc, xd, xe])
         x = self.squeeze_excite(x)
         x = self.conv2(x)
         if self.batch_norm:
