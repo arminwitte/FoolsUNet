@@ -195,7 +195,9 @@ def encoder(N=8, channel_attention="eca"):
     # stage 1 (batch, 128, 128, 24) -> (batch, 128, 128, 24)
     filters = 3 * N
     x = fl.FusedMBConvBlock(filters, expand_factor=1, channel_attention=channel_attention, name="stage_1_conv_0")(x)
-    x = fl.FusedMBConvBlock(filters, expand_factor=1, channel_attention=channel_attention, name="stage_1_conv_1")(x)
+    # x = fl.FusedMBConvBlock(filters, expand_factor=4, strides=1, channel_attention=channel_attention, name="stage_2_conv_1")(x)
+    x = fl.FusedASPPBlock(filters, channel_attention=channel_attention, name="stage_1_aspp_1")(x)
+    # x = fl.FusedMBConvBlock(filters, expand_factor=1, channel_attention=channel_attention, name="stage_1_conv_1")(x)
 
 
     # stage 2 (batch, 128, 128, 24) -> (batch, 64, 64, 48)
