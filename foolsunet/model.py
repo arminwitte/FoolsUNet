@@ -231,8 +231,9 @@ def encoder(N=8, channel_attention="eca"):
     # stage 5 (batch, 16, 16, 128) -> (batch, 16, 16, 160)
     filters = 20 * N
     x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_0")(x)
-    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_1")(x)
-    x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_2")(x)
+    # x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_1")(x)
+    x = fl.ASPPBlock(filters, channel_attention=channel_attention, name="stage_5_aspp_1")(x)
+    # x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_2")(x)
     # x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_3")(x)
     # x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_4")(x)
     # x = fl.InverseResidualBlock(filters, expand_factor=6, strides=1, channel_attention=channel_attention, name="stage_5_conv_5")(x)
@@ -242,7 +243,7 @@ def encoder(N=8, channel_attention="eca"):
 
     # stage 6 (batch, 16, 16, 128) -> (batch, 8, 8, 256)
     filters = 32 * N
-    for i in range(5): # 15
+    for i in range(2): # 15
         s = 2 if i == 0 else 1
         x = fl.InverseResidualBlock(filters, expand_factor=6, strides=s, channel_attention=channel_attention, name=f"stage_6_conv_{i}")(x)
     # x = fl.InverseResidualBlock(filters, strides=1, channel_attention=channel_attention, name="stage_6_conv_1")(x)
@@ -250,23 +251,25 @@ def encoder(N=8, channel_attention="eca"):
     return tf.keras.Model(inputs=inputs, outputs=x)
 
 def classification_head(num_classes=1000, input_shape=(None, 32, 32, 64)):
-        n = 960
+        # n = 960
         inputs = layers.Input(shape=input_shape)
-        x = inputs
-        x = layers.Conv2D(n, (1, 1), strides=(1, 1))(x)
+        # x = inputs
+        # x = layers.Conv2D(n, (1, 1), strides=(1, 1))(x)
+        # x = layers.BatchNormalization()(x)
+        # x = layers.Activation("hard_silu")(x)
+
+        x = layers.Conv2D(1280, (1, 1), strides=(1, 1))(x)
         x = layers.BatchNormalization()(x)
         x = layers.Activation("hard_silu")(x)
 
         # Pooling layer
         x = layers.GlobalAveragePooling2D()(x)
-        x = layers.Reshape((1, 1, n))(x)
-
-        x = layers.Conv2D(1280, (1, 1), strides=(1, 1))(x)
         x = layers.Dropout(0.5)(x)
-        x = layers.Activation("hard_silu")(x)
+        # x = layers.Reshape((1, 1, n))(x)
 
         # Final layer
-        x = layers.Conv2D(num_classes, (1, 1), strides=(1, 1))(x)
-        x = layers.Flatten(name="class_out")(x)
-
+        # x = layers.Conv2D(num_classes, (1, 1), strides=(1, 1))(x)
+        # x = layers.Flatten(name="class_out")(x)
+        x = layers.Dense(num_classes, name="class_out") 
+                         
         return tf.keras.Model(inputs=inputs, outputs=x)
