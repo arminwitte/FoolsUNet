@@ -534,7 +534,7 @@ class FusedASPPBlock(layers.Layer):
         # if self.batch_norm:
         #     self.bn1_b = layers.BatchNormalization()
         # self.activation1_b = layers.Activation("relu6")
-        self.conv_b = layers.Conv2D(self.features, 3, dilation_rate=(6, 6), padding="same", strides=self.strides, use_bias=True)
+        self.conv_b = layers.Conv2D(self.features, 3, dilation_rate=(2, 2), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_b = layers.BatchNormalization()
         self.dropout_b = layers.Dropout(self.dropout_rate)
@@ -546,7 +546,7 @@ class FusedASPPBlock(layers.Layer):
         # if self.batch_norm:
         #     self.bn1_c = layers.BatchNormalization()
         # self.activation1_c = layers.Activation("relu6")
-        self.conv_c = layers.Conv2D(self.features, 3, dilation_rate=(12, 12), padding="same", strides=self.strides, use_bias=True)
+        self.conv_c = layers.Conv2D(self.features, 3, dilation_rate=(3, 3), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_c = layers.BatchNormalization()
         self.dropout_c = layers.Dropout(self.dropout_rate)
@@ -558,7 +558,7 @@ class FusedASPPBlock(layers.Layer):
         # if self.batch_norm:
         #     self.bn1_d = layers.BatchNormalization()
         # self.activation1_d = layers.Activation("relu6")
-        self.conv_d = layers.Conv2D(self.features, 3, dilation_rate=(18, 18), padding="same", strides=self.strides, use_bias=True)
+        self.conv_d = layers.Conv2D(self.features, 3, dilation_rate=(5, 5), padding="same", strides=self.strides, use_bias=True)
         if self.batch_norm:
             self.bn2_d = layers.BatchNormalization()
         self.dropout_d = layers.Dropout(self.dropout_rate)
