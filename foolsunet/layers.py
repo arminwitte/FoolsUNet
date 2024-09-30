@@ -33,12 +33,25 @@ class SqueezeExcite(layers.Layer):
     def build(self, input_shape):
         filters = input_shape[-1]
         self.squeeze = layers.GlobalAveragePooling2D(keepdims=True)
-        self.reduction = layers.Dense(
-            units=filters // self.ratio,
+        self.reduction = layers.Conv2D(
+            filters // self.ratio,
+        kernel_size=1,
+        strides=1,
+        kernel_initializer = "he_normal",
+        padding='same',
+        use_bias=True,
+        name='reduction'
             activation="relu",
-            use_bias=False,
         )
-        self.excite = layers.Dense(units=filters, activation="sigmoid", use_bias=False)
+        self.excite = layers.Conv2D(
+            filters,
+            kernel_size=1,
+        strides=1,
+        kernel_initializer = "he_normal",
+        padding='same',
+        use_bias=True,
+        name='excitation',
+            activation="sigmoid")
         self.multiply = layers.Multiply()
 
     def call(self, x):
