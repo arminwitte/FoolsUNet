@@ -253,7 +253,7 @@ def encoder(N=8, channel_attention="eca"):
 def classification_head(num_classes=1000, input_shape=(None, 32, 32, 64)):
         # n = 960
         inputs = layers.Input(shape=input_shape)
-        # x = inputs
+        x = inputs
         # x = layers.Conv2D(n, (1, 1), strides=(1, 1))(x)
         # x = layers.BatchNormalization()(x)
         # x = layers.Activation("hard_silu")(x)
