@@ -40,7 +40,7 @@ class SqueezeExcite(layers.Layer):
         kernel_initializer = "he_normal",
         padding='same',
         use_bias=True,
-        name='reduction'
+        name='reduction',
             activation="relu",
         )
         self.excite = layers.Conv2D(
