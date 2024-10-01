@@ -10,6 +10,8 @@ class SqueezeExcite(layers.Layer):
     Applies squeeze and excitation to input feature maps as seen in
     https://arxiv.org/abs/1709.01507.
 
+    Referenced in https://github.com/google/automl/blob/master/efficientnetv2/effnetv2_model.py
+
     Args:
         ratio: The ratio with which the feature map needs to be reduced in
         the reduction phase.
@@ -85,29 +87,14 @@ class EfficientChannelAttention(layers.Layer):
             self.kernel_size = max(3, ((log2c / 2) // 2) * 2 + 1)
         
         self.squeeze = layers.GlobalAveragePooling2D(keepdims=False)
-        
-        #self.reshape1 = layers.Reshape((1,channels))
-        #self.conv = layers.Conv1D(channels,self.kernel_size, padding="same", use_bias=False, strides=1, activation="sigmoid")
-        #self.reshape11 = layers.Reshape((1,1,channels))
-        
-        # self.conv1 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
-        # self.activation1 = layers.Activation("leakyrelu")
-        self.conv2 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, padding='same',use_bias=False)
+        self.conv2 = layers.Conv1D(filters=1, kernel_size=self.kernel_size, kernel_initializer = "glorot_normal", padding='same',use_bias=True)
         self.activation2 = layers.Activation("sigmoid")
-
         self.multiply = layers.Multiply()
 
     def call(self, x):
         shortcut = x
         x = self.squeeze(x) # (batch, channels)
-
-        # x = self.reshape1(x)
-        # x = self.conv(x)
-        # x = self.reshape11(x)
-
         x = tf.expand_dims(x, axis=-1) # (batch, channels, 1)
-        # x = self.conv1(x) # (batch, channels, 1)
-        # x = self.activation1(x)
         x = self.conv2(x) # (batch, channels, 1)
         x = tf.transpose(x, [0, 2, 1]) # (batch, 1, channels)
         x = tf.expand_dims(x, 1) # (batch, 1, 1, channels)
@@ -162,12 +149,16 @@ class InverseResidualBlock(layers.Layer):
 
     def build(self, input_shape):
         self.conv1 = layers.Conv2D(
-            self.features * self.expand_factor, (1, 1), strides=1
+            self.features * self.expand_factor, (1, 1), strides=1,
+            kernel_initializer="he_normal",
+            use_bias=False,
         )
         if self.batch_norm:
             self.bn1 = layers.BatchNormalization()
         self.activation1 = layers.Activation("relu6")
-        self.dwise = layers.DepthwiseConv2D(3, padding="same", strides=self.strides)
+        self.dwise = layers.DepthwiseConv2D(3, padding="same", strides=self.strides,
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn2 = layers.BatchNormalization()
         self.activation2 = layers.Activation("relu6")
@@ -179,7 +170,9 @@ class InverseResidualBlock(layers.Layer):
         else:
             self.squeeze_excite = layers.Lambda(lambda x:x) #layers.Layer()
             
-        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same")
+        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same",
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn3 = layers.BatchNormalization()
 
@@ -242,7 +235,9 @@ class FusedMBConvBlock(layers.Layer):
 
     def build(self, input_shape):
         self.conv1 = layers.Conv2D(
-            self.features * self.expand_factor, (3, 3), strides=self.strides, padding="same"
+            self.features * self.expand_factor, (3, 3), strides=self.strides, padding="same",
+            kernel_initializer="he_normal",
+            use_bias=False,
         )
         if self.batch_norm:
             self.bn1 = layers.BatchNormalization()
@@ -255,7 +250,9 @@ class FusedMBConvBlock(layers.Layer):
         else:
             self.squeeze_excite = layers.Lambda(lambda x:x) #layers.Layer()
             
-        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same")
+        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same",
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn2 = layers.BatchNormalization()
 
@@ -335,48 +332,64 @@ class ASPPBlock(layers.Layer):
 
 
         self.conv1_a = layers.Conv2D(
-            self.features, (1, 1), strides=1, use_bias=True
+            self.features, (1, 1), strides=1,
+            kernel_initializer="he_normal",
+            use_bias=False,
         )
         if self.batch_norm:
             self.bn1_a = layers.BatchNormalization()
         self.activation1_a = layers.Activation("relu6")
-        self.dwise_a = layers.DepthwiseConv2D(1, dilation_rate=(1, 1), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_a = layers.DepthwiseConv2D(1, dilation_rate=(1, 1), padding="same", strides=self.strides,
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn2_a = layers.BatchNormalization()
         self.dropout_a = layers.Dropout(self.dropout_rate)
         self.activation2_a = layers.Activation("relu6")
 
         self.conv1_b = layers.Conv2D(
-            self.features, (1, 1), strides=1, use_bias=True
+            self.features, (1, 1), strides=1,
+            kernel_initializer="he_normal",
+            use_bias=False,
         )
         if self.batch_norm:
             self.bn1_b = layers.BatchNormalization()
         self.activation1_b = layers.Activation("relu6")
-        self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(2, 2), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(2, 2), padding="same", strides=self.strides,
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn2_b = layers.BatchNormalization()
         self.dropout_b = layers.Dropout(self.dropout_rate)
         self.activation2_b = layers.Activation("relu6")
        
         self.conv1_c = layers.Conv2D(
-            self.features, (1, 1), strides=1, use_bias=True
+            self.features, (1, 1), strides=1,
+            kernel_initializer="he_normal",
+            use_bias=False,
         )
         if self.batch_norm:
             self.bn1_c = layers.BatchNormalization()
         self.activation1_c = layers.Activation("relu6")
-        self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(3, 3), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(3, 3), padding="same", strides=self.strides,
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn2_c = layers.BatchNormalization()
         self.dropout_c = layers.Dropout(self.dropout_rate)
         self.activation2_c = layers.Activation("relu6")
         
         self.conv1_d = layers.Conv2D(
-            self.features, (1, 1), strides=1, use_bias=True
+            self.features, (1, 1), strides=1,
+            kernel_initializer="he_normal",
+            use_bias=False,
         )
         if self.batch_norm:
             self.bn1_d = layers.BatchNormalization()
         self.activation1_d = layers.Activation("relu6")
-        self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(5, 5), padding="same", strides=self.strides, use_bias=True)
+        self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(5, 5), padding="same", strides=self.strides,
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn2_d = layers.BatchNormalization()
         self.dropout_d = layers.Dropout(self.dropout_rate)
@@ -399,7 +412,9 @@ class ASPPBlock(layers.Layer):
         else:
             self.squeeze_excite = layers.Lambda(lambda x:x) #layers.Layer()
             
-        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same", use_bias=True)
+        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same",
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn3 = layers.BatchNormalization()
 
@@ -535,7 +550,9 @@ class FusedASPPBlock(layers.Layer):
         #     self.bn1 = layers.BatchNormalization()
         # self.activation1 = layers.Activation("relu6")
         
-        self.conv_a = layers.Conv2D(self.features, 1, dilation_rate=(1, 1), padding="same", strides=self.strides, use_bias=True)
+        self.conv_a = layers.Conv2D(self.features, 1, dilation_rate=(1, 1), padding="same", strides=self.strides,
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn2_a = layers.BatchNormalization()
         self.dropout_a = layers.Dropout(self.dropout_rate)
@@ -547,7 +564,9 @@ class FusedASPPBlock(layers.Layer):
         # if self.batch_norm:
         #     self.bn1_b = layers.BatchNormalization()
         # self.activation1_b = layers.Activation("relu6")
-        self.conv_b = layers.Conv2D(self.features, 3, dilation_rate=(2, 2), padding="same", strides=self.strides, use_bias=True)
+        self.conv_b = layers.Conv2D(self.features, 3, dilation_rate=(2, 2), padding="same", strides=self.strides,
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn2_b = layers.BatchNormalization()
         self.dropout_b = layers.Dropout(self.dropout_rate)
@@ -559,7 +578,9 @@ class FusedASPPBlock(layers.Layer):
         # if self.batch_norm:
         #     self.bn1_c = layers.BatchNormalization()
         # self.activation1_c = layers.Activation("relu6")
-        self.conv_c = layers.Conv2D(self.features, 3, dilation_rate=(3, 3), padding="same", strides=self.strides, use_bias=True)
+        self.conv_c = layers.Conv2D(self.features, 3, dilation_rate=(3, 3), padding="same", strides=self.strides,
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn2_c = layers.BatchNormalization()
         self.dropout_c = layers.Dropout(self.dropout_rate)
@@ -571,7 +592,9 @@ class FusedASPPBlock(layers.Layer):
         # if self.batch_norm:
         #     self.bn1_d = layers.BatchNormalization()
         # self.activation1_d = layers.Activation("relu6")
-        self.conv_d = layers.Conv2D(self.features, 3, dilation_rate=(5, 5), padding="same", strides=self.strides, use_bias=True)
+        self.conv_d = layers.Conv2D(self.features, 3, dilation_rate=(5, 5), padding="same", strides=self.strides,
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn2_d = layers.BatchNormalization()
         self.dropout_d = layers.Dropout(self.dropout_rate)
@@ -595,7 +618,9 @@ class FusedASPPBlock(layers.Layer):
         else:
             self.squeeze_excite = layers.Lambda(lambda x:x) #layers.Layer()
             
-        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same", use_bias=True)
+        self.conv2 = layers.Conv2D(self.features, (1, 1), strides=1, padding="same",
+            kernel_initializer="he_normal",
+            use_bias=False,)
         if self.batch_norm:
             self.bn3 = layers.BatchNormalization()
 
