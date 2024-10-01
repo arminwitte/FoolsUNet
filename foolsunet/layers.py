@@ -157,7 +157,7 @@ class InverseResidualBlock(layers.Layer):
             self.bn1 = layers.BatchNormalization()
         self.activation1 = layers.Activation("relu6")
         self.dwise = layers.DepthwiseConv2D(3, padding="same", strides=self.strides,
-            kernel_initializer="he_normal",
+            depthwise_initializer="he_normal",
             use_bias=False,)
         if self.batch_norm:
             self.bn2 = layers.BatchNormalization()
@@ -340,7 +340,7 @@ class ASPPBlock(layers.Layer):
             self.bn1_a = layers.BatchNormalization()
         self.activation1_a = layers.Activation("relu6")
         self.dwise_a = layers.DepthwiseConv2D(1, dilation_rate=(1, 1), padding="same", strides=self.strides,
-            kernel_initializer="he_normal",
+            depthwise_initializer="he_normal",
             use_bias=False,)
         if self.batch_norm:
             self.bn2_a = layers.BatchNormalization()
@@ -356,7 +356,7 @@ class ASPPBlock(layers.Layer):
             self.bn1_b = layers.BatchNormalization()
         self.activation1_b = layers.Activation("relu6")
         self.dwise_b = layers.DepthwiseConv2D(3, dilation_rate=(2, 2), padding="same", strides=self.strides,
-            kernel_initializer="he_normal",
+            depthwise_initializer="he_normal",
             use_bias=False,)
         if self.batch_norm:
             self.bn2_b = layers.BatchNormalization()
@@ -372,7 +372,7 @@ class ASPPBlock(layers.Layer):
             self.bn1_c = layers.BatchNormalization()
         self.activation1_c = layers.Activation("relu6")
         self.dwise_c = layers.DepthwiseConv2D(3, dilation_rate=(3, 3), padding="same", strides=self.strides,
-            kernel_initializer="he_normal",
+            depthwise_initializer="he_normal",
             use_bias=False,)
         if self.batch_norm:
             self.bn2_c = layers.BatchNormalization()
@@ -388,7 +388,7 @@ class ASPPBlock(layers.Layer):
             self.bn1_d = layers.BatchNormalization()
         self.activation1_d = layers.Activation("relu6")
         self.dwise_d = layers.DepthwiseConv2D(3, dilation_rate=(5, 5), padding="same", strides=self.strides,
-            kernel_initializer="he_normal",
+            depthwise_initializer="he_normal",
             use_bias=False,)
         if self.batch_norm:
             self.bn2_d = layers.BatchNormalization()
